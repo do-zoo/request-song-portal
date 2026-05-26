@@ -37,7 +37,11 @@ export default async function AdminSetupPage({
 
         {error && (
           <p className="mb-4 text-red-500 text-sm">
-            {error === 'oauth_failed' ? 'Spotify authorization failed. Try again.' : 'Something went wrong.'}
+            {error === 'oauth_failed'
+              ? 'Otorisasi Spotify gagal. Coba lagi.'
+              : error === 'token_failed'
+              ? 'Gagal mendapatkan token Spotify. Coba lagi.'
+              : 'Terjadi kesalahan. Coba lagi.'}
           </p>
         )}
 
