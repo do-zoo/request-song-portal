@@ -12,6 +12,7 @@ export default async function AdminSetupPage({
   const { data: existingEvent } = await supabase
     .from('events')
     .select('id, name, pin, status')
+    .eq('status', 'open')
     .order('created_at', { ascending: false })
     .limit(1)
     .single()
