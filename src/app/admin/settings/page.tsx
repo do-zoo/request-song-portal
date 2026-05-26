@@ -4,7 +4,7 @@ import { redirect } from 'next/navigation'
 import type { EventSettings } from '@/types/database'
 
 export default async function AdminSettingsPage() {
-  const supabase = await createServiceClient()
+  const supabase = createServiceClient()
 
   const { data: event } = await supabase
     .from('events')

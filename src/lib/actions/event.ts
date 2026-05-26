@@ -19,7 +19,7 @@ export async function createEventAndConnectSpotify(
   const parsed = createEventSchema.safeParse({ name: formData.get('name') })
   if (!parsed.success) return { error: 'Nama event tidak valid.' }
 
-  const supabase = await createServiceClient()
+  const supabase = createServiceClient()
   const pin = generatePin()
 
   const { data: event, error } = await supabase

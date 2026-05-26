@@ -23,7 +23,7 @@ export async function updateSettings(
   })
   if (!parsed.success) return { success: false, error: 'Invalid settings values' }
 
-  const supabase = await createServiceClient()
+  const supabase = createServiceClient()
   const { error } = await supabase
     .from('events')
     .update({ settings: parsed.data })
@@ -36,7 +36,7 @@ export async function updatePortalStatus(
   eventId: string,
   status: EventStatus
 ): Promise<void> {
-  const supabase = await createServiceClient()
+  const supabase = createServiceClient()
   await supabase.from('events').update({ status }).eq('id', eventId)
 }
 
@@ -45,7 +45,7 @@ export async function addToBlacklist(
   spotifyTrackId: string,
   trackName: string
 ): Promise<void> {
-  const supabase = await createServiceClient()
+  const supabase = createServiceClient()
   await supabase
     .from('blacklisted_tracks')
     .upsert({ event_id: eventId, spotify_track_id: spotifyTrackId, track_name: trackName })
@@ -55,7 +55,7 @@ export async function removeFromBlacklist(
   eventId: string,
   spotifyTrackId: string
 ): Promise<void> {
-  const supabase = await createServiceClient()
+  const supabase = createServiceClient()
   await supabase
     .from('blacklisted_tracks')
     .delete()

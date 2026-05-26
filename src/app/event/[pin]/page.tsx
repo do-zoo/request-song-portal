@@ -17,7 +17,7 @@ export default async function EventPage({
     redirect(`/?pin=${pin}`)
   }
 
-  const supabase = await createServiceClient()
+  const supabase = createServiceClient()
 
   const { data: event } = await supabase
     .from('events')

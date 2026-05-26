@@ -9,7 +9,7 @@ export async function skipRequest(
   requestId: string,
   eventId: string
 ): Promise<{ success: boolean; error?: string }> {
-  const supabase = await createServiceClient()
+  const supabase = createServiceClient()
 
   const { data: request } = await supabase
     .from('song_requests')
@@ -60,7 +60,7 @@ export async function skipRequest(
 export async function removeRequest(
   requestId: string
 ): Promise<{ success: boolean }> {
-  const supabase = await createServiceClient()
+  const supabase = createServiceClient()
 
   const { data: request } = await supabase
     .from('song_requests')
@@ -94,7 +94,7 @@ export async function reorderQueue(
   requestId: string,
   direction: 'up' | 'down'
 ): Promise<{ success: boolean }> {
-  const supabase = await createServiceClient()
+  const supabase = createServiceClient()
 
   const { data: requests } = await supabase
     .from('song_requests')

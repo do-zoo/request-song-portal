@@ -8,7 +8,7 @@ export default async function AdminSetupPage({
 }) {
   const { error } = await searchParams
 
-  const supabase = await createServiceClient()
+  const supabase = createServiceClient()
   const { data: existingEvent } = await supabase
     .from('events')
     .select('id, name, pin, status')

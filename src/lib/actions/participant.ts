@@ -23,7 +23,7 @@ export async function joinEvent(formData: FormData): Promise<JoinResult> {
   if (!parsed.success) return { success: false, error: 'PIN harus 6 digit angka' }
 
   const { pin, nickname } = parsed.data
-  const supabase = await createServiceClient()
+  const supabase = createServiceClient()
 
   const headersList = await headers()
   const ip = headersList.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unknown'

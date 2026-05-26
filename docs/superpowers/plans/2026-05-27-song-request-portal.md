@@ -9,6 +9,7 @@
 **Tech Stack:** Next.js 16, React 19, TypeScript, Tailwind CSS v4, `@supabase/ssr`, `zod`, `vitest`, `@playwright/test`
 
 > **Next.js 16 breaking changes to note:**
+>
 > - `middleware.ts` is deprecated — use `proxy.ts` instead
 > - `cookies()`, `headers()`, and `params` are all **async** (must `await`)
 
@@ -66,6 +67,7 @@ src/
 ## Task 1: Install Dependencies and Configure Testing
 
 **Files:**
+
 - Modify: `package.json`
 - Create: `vitest.config.ts`
 - Create: `.env.local` (from template)
@@ -102,20 +104,20 @@ Open `package.json` and add `"test": "vitest run"` and `"test:watch": "vitest"` 
 - [ ] **Step 4: Create `vitest.config.ts`**
 
 ```ts
-import { defineConfig } from 'vitest/config'
-import path from 'path'
+import { defineConfig } from "vitest/config";
+import path from "path";
 
 export default defineConfig({
   test: {
-    environment: 'node',
-    include: ['src/**/*.test.ts'],
+    environment: "node",
+    include: ["src/**/*.test.ts"],
   },
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, './src'),
+      "@": path.resolve(__dirname, "./src"),
     },
   },
-})
+});
 ```
 
 - [ ] **Step 5: Create `.env.local` template**
@@ -123,8 +125,7 @@ export default defineConfig({
 ```bash
 cat > .env.local << 'EOF'
 NEXT_PUBLIC_SUPABASE_URL=
-NEXT_PUBLIC_SUPABASE_ANON_KEY=
-SUPABASE_SERVICE_ROLE_KEY=
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=
 SPOTIFY_CLIENT_ID=
 SPOTIFY_CLIENT_SECRET=
 SPOTIFY_REDIRECT_URI=http://localhost:3000/api/auth/spotify/callback
@@ -153,6 +154,7 @@ git commit -m "feat: install Supabase, Zod, Vitest dependencies"
 ## Task 2: Database Schema
 
 **Files:**
+
 - Create: `supabase/migrations/0001_initial.sql`
 
 - [ ] **Step 1: Create migration directory**
@@ -275,6 +277,7 @@ git commit -m "feat: add initial database schema"
 ## Task 3: TypeScript Types
 
 **Files:**
+
 - Create: `src/types/database.ts`
 
 - [ ] **Step 1: Write the test**
@@ -282,35 +285,37 @@ git commit -m "feat: add initial database schema"
 Create `src/types/database.test.ts`:
 
 ```ts
-import { describe, it, expectTypeOf } from 'vitest'
-import type { EventSettings, SpotifyTokens, SongRequest } from './database'
+import { describe, it, expectTypeOf } from "vitest";
+import type { EventSettings, SpotifyTokens, SongRequest } from "./database";
 
-describe('database types', () => {
-  it('EventSettings has required fields', () => {
+describe("database types", () => {
+  it("EventSettings has required fields", () => {
     const s: EventSettings = {
       max_requests: 3,
       cooldown_minutes: 10,
       max_duration_ms: 600000,
       allow_explicit: true,
-    }
-    expectTypeOf(s.max_requests).toBeNumber()
-    expectTypeOf(s.allow_explicit).toBeBoolean()
-  })
+    };
+    expectTypeOf(s.max_requests).toBeNumber();
+    expectTypeOf(s.allow_explicit).toBeBoolean();
+  });
 
-  it('SpotifyTokens has expires_at as number', () => {
+  it("SpotifyTokens has expires_at as number", () => {
     const t: SpotifyTokens = {
-      access_token: 'tok',
-      refresh_token: 'ref',
+      access_token: "tok",
+      refresh_token: "ref",
       expires_at: Date.now(),
-    }
-    expectTypeOf(t.expires_at).toBeNumber()
-  })
+    };
+    expectTypeOf(t.expires_at).toBeNumber();
+  });
 
-  it('SongRequest status union is correct', () => {
-    const r: SongRequest['status'] = 'pending'
-    expectTypeOf(r).toEqualTypeOf<'pending' | 'playing' | 'played' | 'skipped'>()
-  })
-})
+  it("SongRequest status union is correct", () => {
+    const r: SongRequest["status"] = "pending";
+    expectTypeOf(r).toEqualTypeOf<
+      "pending" | "playing" | "played" | "skipped"
+    >();
+  });
+});
 ```
 
 - [ ] **Step 2: Run test — expect FAIL**
@@ -324,72 +329,72 @@ Expected: FAIL — `Cannot find module './database'`
 - [ ] **Step 3: Create `src/types/database.ts`**
 
 ```ts
-export type EventStatus = 'open' | 'closed' | 'paused'
-export type RequestStatus = 'pending' | 'playing' | 'played' | 'skipped'
+export type EventStatus = "open" | "closed" | "paused";
+export type RequestStatus = "pending" | "playing" | "played" | "skipped";
 
 export interface EventSettings {
-  max_requests: number      // 0 = unlimited
-  cooldown_minutes: number  // 0 = none
-  max_duration_ms: number   // 0 = no limit
-  allow_explicit: boolean
+  max_requests: number; // 0 = unlimited
+  cooldown_minutes: number; // 0 = none
+  max_duration_ms: number; // 0 = no limit
+  allow_explicit: boolean;
 }
 
 export interface SpotifyTokens {
-  access_token: string
-  refresh_token: string
-  expires_at: number  // Unix timestamp ms
+  access_token: string;
+  refresh_token: string;
+  expires_at: number; // Unix timestamp ms
 }
 
 export interface Event {
-  id: string
-  pin: string
-  name: string
-  spotify_token: SpotifyTokens | null
-  status: EventStatus
-  settings: EventSettings
-  created_at: string
+  id: string;
+  pin: string;
+  name: string;
+  spotify_token: SpotifyTokens | null;
+  status: EventStatus;
+  settings: EventSettings;
+  created_at: string;
 }
 
 export interface SongRequest {
-  id: string
-  event_id: string
-  participant_id: string
-  spotify_track_id: string
-  track_name: string
-  artist_name: string
-  album_art_url: string
-  duration_ms: number
-  requested_by: string
-  status: RequestStatus
-  position: number
-  requested_at: string
+  id: string;
+  event_id: string;
+  participant_id: string;
+  spotify_track_id: string;
+  track_name: string;
+  artist_name: string;
+  album_art_url: string;
+  duration_ms: number;
+  requested_by: string;
+  status: RequestStatus;
+  position: number;
+  requested_at: string;
 }
 
 export interface EventParticipant {
-  id: string
-  event_id: string
-  nickname: string
-  session_token: string
-  request_count: number
-  last_played_at: string | null
-  joined_at: string
+  id: string;
+  event_id: string;
+  nickname: string;
+  session_token: string;
+  request_count: number;
+  last_played_at: string | null;
+  joined_at: string;
 }
 
 export interface BlacklistedTrack {
-  id: string
-  event_id: string
-  spotify_track_id: string
-  track_name: string
-  added_at: string
+  id: string;
+  event_id: string;
+  spotify_track_id: string;
+  track_name: string;
+  added_at: string;
 }
 
 export interface SpotifyTrack {
-  id: string
-  name: string
-  artists: Array<{ name: string }>
-  album: { images: Array<{ url: string }> }
-  duration_ms: number
-  explicit: boolean
+  id: string;
+  name: string;
+  artists: Array<{ name: string }>;
+  album: { images: Array<{ url: string }> };
+  duration_ms: number;
+  explicit: boolean;
 }
 ```
 
@@ -413,67 +418,72 @@ git commit -m "feat: add shared TypeScript database types"
 ## Task 4: Supabase Client Helpers
 
 **Files:**
+
 - Create: `src/lib/supabase/server.ts`
 - Create: `src/lib/supabase/client.ts`
 
 - [ ] **Step 1: Create `src/lib/supabase/server.ts`**
 
 ```ts
-import { createServerClient } from '@supabase/ssr'
-import { cookies } from 'next/headers'
+import { createServerClient } from "@supabase/ssr";
+import { cookies } from "next/headers";
 
 export async function createClient() {
-  const cookieStore = await cookies()
+  const cookieStore = await cookies();
   return createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
-        getAll() { return cookieStore.getAll() },
+        getAll() {
+          return cookieStore.getAll();
+        },
         setAll(cookiesToSet) {
           try {
             cookiesToSet.forEach(({ name, value, options }) =>
-              cookieStore.set(name, value, options)
-            )
+              cookieStore.set(name, value, options),
+            );
           } catch {}
         },
       },
-    }
-  )
+    },
+  );
 }
 
 // Service role client — bypasses RLS. Use only in Server Actions and API routes.
 export async function createServiceClient() {
-  const cookieStore = await cookies()
+  const cookieStore = await cookies();
   return createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
     {
       cookies: {
-        getAll() { return cookieStore.getAll() },
+        getAll() {
+          return cookieStore.getAll();
+        },
         setAll(cookiesToSet) {
           try {
             cookiesToSet.forEach(({ name, value, options }) =>
-              cookieStore.set(name, value, options)
-            )
+              cookieStore.set(name, value, options),
+            );
           } catch {}
         },
       },
-    }
-  )
+    },
+  );
 }
 ```
 
 - [ ] **Step 2: Create `src/lib/supabase/client.ts`**
 
 ```ts
-import { createBrowserClient } from '@supabase/ssr'
+import { createBrowserClient } from "@supabase/ssr";
 
 export function createClient() {
   return createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  )
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+  );
 }
 ```
 
@@ -489,6 +499,7 @@ git commit -m "feat: add Supabase server and browser client helpers"
 ## Task 5: Business Logic Validation Utilities (TDD)
 
 **Files:**
+
 - Create: `src/lib/validation.ts`
 - Create: `src/lib/validation.test.ts`
 
@@ -497,88 +508,88 @@ git commit -m "feat: add Supabase server and browser client helpers"
 Create `src/lib/validation.test.ts`:
 
 ```ts
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect } from "vitest";
 import {
   checkRateLimit,
   checkCooldown,
   checkDuration,
   generatePin,
   generateSessionToken,
-} from './validation'
+} from "./validation";
 
-describe('checkRateLimit', () => {
-  it('returns true when max_requests is 0 (unlimited)', () => {
-    expect(checkRateLimit(99, 0)).toBe(true)
-  })
-  it('returns true when under limit', () => {
-    expect(checkRateLimit(2, 3)).toBe(true)
-  })
-  it('returns false when at limit', () => {
-    expect(checkRateLimit(3, 3)).toBe(false)
-  })
-  it('returns false when over limit', () => {
-    expect(checkRateLimit(5, 3)).toBe(false)
-  })
-})
+describe("checkRateLimit", () => {
+  it("returns true when max_requests is 0 (unlimited)", () => {
+    expect(checkRateLimit(99, 0)).toBe(true);
+  });
+  it("returns true when under limit", () => {
+    expect(checkRateLimit(2, 3)).toBe(true);
+  });
+  it("returns false when at limit", () => {
+    expect(checkRateLimit(3, 3)).toBe(false);
+  });
+  it("returns false when over limit", () => {
+    expect(checkRateLimit(5, 3)).toBe(false);
+  });
+});
 
-describe('checkCooldown', () => {
-  it('returns ok when lastPlayedAt is null', () => {
-    expect(checkCooldown(null, 10)).toEqual({ ok: true, minutesLeft: 0 })
-  })
-  it('returns ok when cooldownMinutes is 0', () => {
-    const recent = new Date().toISOString()
-    expect(checkCooldown(recent, 0)).toEqual({ ok: true, minutesLeft: 0 })
-  })
-  it('returns ok when cooldown has elapsed', () => {
-    const past = new Date(Date.now() - 11 * 60 * 1000).toISOString()
-    expect(checkCooldown(past, 10)).toEqual({ ok: true, minutesLeft: 0 })
-  })
-  it('returns not ok with minutesLeft when still in cooldown', () => {
-    const past = new Date(Date.now() - 5 * 60 * 1000).toISOString()
-    const result = checkCooldown(past, 10)
-    expect(result.ok).toBe(false)
-    expect(result.minutesLeft).toBe(5)
-  })
-})
+describe("checkCooldown", () => {
+  it("returns ok when lastPlayedAt is null", () => {
+    expect(checkCooldown(null, 10)).toEqual({ ok: true, minutesLeft: 0 });
+  });
+  it("returns ok when cooldownMinutes is 0", () => {
+    const recent = new Date().toISOString();
+    expect(checkCooldown(recent, 0)).toEqual({ ok: true, minutesLeft: 0 });
+  });
+  it("returns ok when cooldown has elapsed", () => {
+    const past = new Date(Date.now() - 11 * 60 * 1000).toISOString();
+    expect(checkCooldown(past, 10)).toEqual({ ok: true, minutesLeft: 0 });
+  });
+  it("returns not ok with minutesLeft when still in cooldown", () => {
+    const past = new Date(Date.now() - 5 * 60 * 1000).toISOString();
+    const result = checkCooldown(past, 10);
+    expect(result.ok).toBe(false);
+    expect(result.minutesLeft).toBe(5);
+  });
+});
 
-describe('checkDuration', () => {
-  it('returns true when maxDurationMs is 0 (no limit)', () => {
-    expect(checkDuration(99999999, 0)).toBe(true)
-  })
-  it('returns true when duration is under max', () => {
-    expect(checkDuration(300000, 600000)).toBe(true)
-  })
-  it('returns false when duration exceeds max', () => {
-    expect(checkDuration(700000, 600000)).toBe(false)
-  })
-  it('returns true when duration equals max', () => {
-    expect(checkDuration(600000, 600000)).toBe(true)
-  })
-})
+describe("checkDuration", () => {
+  it("returns true when maxDurationMs is 0 (no limit)", () => {
+    expect(checkDuration(99999999, 0)).toBe(true);
+  });
+  it("returns true when duration is under max", () => {
+    expect(checkDuration(300000, 600000)).toBe(true);
+  });
+  it("returns false when duration exceeds max", () => {
+    expect(checkDuration(700000, 600000)).toBe(false);
+  });
+  it("returns true when duration equals max", () => {
+    expect(checkDuration(600000, 600000)).toBe(true);
+  });
+});
 
-describe('generatePin', () => {
-  it('generates a 6-digit numeric string', () => {
-    const pin = generatePin()
-    expect(pin).toMatch(/^\d{6}$/)
-  })
-  it('generates different pins each call', () => {
-    const pins = new Set(Array.from({ length: 10 }, generatePin))
-    expect(pins.size).toBeGreaterThan(1)
-  })
-})
+describe("generatePin", () => {
+  it("generates a 6-digit numeric string", () => {
+    const pin = generatePin();
+    expect(pin).toMatch(/^\d{6}$/);
+  });
+  it("generates different pins each call", () => {
+    const pins = new Set(Array.from({ length: 10 }, generatePin));
+    expect(pins.size).toBeGreaterThan(1);
+  });
+});
 
-describe('generateSessionToken', () => {
-  it('generates a valid UUID v4', () => {
-    const token = generateSessionToken()
+describe("generateSessionToken", () => {
+  it("generates a valid UUID v4", () => {
+    const token = generateSessionToken();
     expect(token).toMatch(
-      /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/
-    )
-  })
-  it('generates unique tokens each call', () => {
-    const tokens = new Set(Array.from({ length: 5 }, generateSessionToken))
-    expect(tokens.size).toBe(5)
-  })
-})
+      /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/,
+    );
+  });
+  it("generates unique tokens each call", () => {
+    const tokens = new Set(Array.from({ length: 5 }, generateSessionToken));
+    expect(tokens.size).toBe(5);
+  });
+});
 ```
 
 - [ ] **Step 2: Run tests — expect FAIL**
@@ -592,32 +603,43 @@ Expected: FAIL — `Cannot find module './validation'`
 - [ ] **Step 3: Create `src/lib/validation.ts`**
 
 ```ts
-export function checkRateLimit(requestCount: number, maxRequests: number): boolean {
-  if (maxRequests === 0) return true
-  return requestCount < maxRequests
+export function checkRateLimit(
+  requestCount: number,
+  maxRequests: number,
+): boolean {
+  if (maxRequests === 0) return true;
+  return requestCount < maxRequests;
 }
 
 export function checkCooldown(
   lastPlayedAt: string | null,
-  cooldownMinutes: number
+  cooldownMinutes: number,
 ): { ok: boolean; minutesLeft: number } {
-  if (!lastPlayedAt || cooldownMinutes === 0) return { ok: true, minutesLeft: 0 }
-  const elapsedMinutes = (Date.now() - new Date(lastPlayedAt).getTime()) / 60_000
-  if (elapsedMinutes >= cooldownMinutes) return { ok: true, minutesLeft: 0 }
-  return { ok: false, minutesLeft: Math.ceil(cooldownMinutes - elapsedMinutes) }
+  if (!lastPlayedAt || cooldownMinutes === 0)
+    return { ok: true, minutesLeft: 0 };
+  const elapsedMinutes =
+    (Date.now() - new Date(lastPlayedAt).getTime()) / 60_000;
+  if (elapsedMinutes >= cooldownMinutes) return { ok: true, minutesLeft: 0 };
+  return {
+    ok: false,
+    minutesLeft: Math.ceil(cooldownMinutes - elapsedMinutes),
+  };
 }
 
-export function checkDuration(durationMs: number, maxDurationMs: number): boolean {
-  if (maxDurationMs === 0) return true
-  return durationMs <= maxDurationMs
+export function checkDuration(
+  durationMs: number,
+  maxDurationMs: number,
+): boolean {
+  if (maxDurationMs === 0) return true;
+  return durationMs <= maxDurationMs;
 }
 
 export function generatePin(): string {
-  return Math.floor(100000 + Math.random() * 900000).toString()
+  return Math.floor(100000 + Math.random() * 900000).toString();
 }
 
 export function generateSessionToken(): string {
-  return crypto.randomUUID()
+  return crypto.randomUUID();
 }
 ```
 
@@ -641,6 +663,7 @@ git commit -m "feat: add validation utilities with tests"
 ## Task 6: Spotify API Client and Token Management
 
 **Files:**
+
 - Create: `src/lib/spotify/client.ts`
 - Create: `src/lib/spotify/tokens.ts`
 - Create: `src/lib/spotify/tokens.test.ts`
@@ -650,38 +673,38 @@ git commit -m "feat: add validation utilities with tests"
 Create `src/lib/spotify/tokens.test.ts`:
 
 ```ts
-import { describe, it, expect } from 'vitest'
-import { isExpired } from './tokens'
-import type { SpotifyTokens } from '@/types/database'
+import { describe, it, expect } from "vitest";
+import { isExpired } from "./tokens";
+import type { SpotifyTokens } from "@/types/database";
 
-describe('isExpired', () => {
-  it('returns false when token expires in the future (past buffer)', () => {
+describe("isExpired", () => {
+  it("returns false when token expires in the future (past buffer)", () => {
     const tokens: SpotifyTokens = {
-      access_token: 'tok',
-      refresh_token: 'ref',
+      access_token: "tok",
+      refresh_token: "ref",
       expires_at: Date.now() + 120_000, // 2 minutes from now
-    }
-    expect(isExpired(tokens)).toBe(false)
-  })
+    };
+    expect(isExpired(tokens)).toBe(false);
+  });
 
-  it('returns true when token expires within the 60s buffer', () => {
+  it("returns true when token expires within the 60s buffer", () => {
     const tokens: SpotifyTokens = {
-      access_token: 'tok',
-      refresh_token: 'ref',
+      access_token: "tok",
+      refresh_token: "ref",
       expires_at: Date.now() + 30_000, // 30s from now — inside 60s buffer
-    }
-    expect(isExpired(tokens)).toBe(true)
-  })
+    };
+    expect(isExpired(tokens)).toBe(true);
+  });
 
-  it('returns true when token is already expired', () => {
+  it("returns true when token is already expired", () => {
     const tokens: SpotifyTokens = {
-      access_token: 'tok',
-      refresh_token: 'ref',
+      access_token: "tok",
+      refresh_token: "ref",
       expires_at: Date.now() - 1000,
-    }
-    expect(isExpired(tokens)).toBe(true)
-  })
-})
+    };
+    expect(isExpired(tokens)).toBe(true);
+  });
+});
 ```
 
 - [ ] **Step 2: Run test — expect FAIL**
@@ -695,41 +718,44 @@ Expected: FAIL — `Cannot find module './tokens'`
 - [ ] **Step 3: Create `src/lib/spotify/tokens.ts`**
 
 ```ts
-import type { SpotifyTokens } from '@/types/database'
+import type { SpotifyTokens } from "@/types/database";
 
 export function isExpired(tokens: SpotifyTokens): boolean {
-  return Date.now() >= tokens.expires_at - 60_000
+  return Date.now() >= tokens.expires_at - 60_000;
 }
 
-export async function refreshAccessToken(tokens: SpotifyTokens): Promise<SpotifyTokens> {
-  const res = await fetch('https://accounts.spotify.com/api/token', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+export async function refreshAccessToken(
+  tokens: SpotifyTokens,
+): Promise<SpotifyTokens> {
+  const res = await fetch("https://accounts.spotify.com/api/token", {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
     body: new URLSearchParams({
-      grant_type: 'refresh_token',
+      grant_type: "refresh_token",
       refresh_token: tokens.refresh_token,
       client_id: process.env.SPOTIFY_CLIENT_ID!,
       client_secret: process.env.SPOTIFY_CLIENT_SECRET!,
     }),
-  })
-  if (!res.ok) throw new Error(`Token refresh failed: ${res.status}`)
-  const data = await res.json()
+  });
+  if (!res.ok) throw new Error(`Token refresh failed: ${res.status}`);
+  const data = await res.json();
   return {
     access_token: data.access_token,
     refresh_token: data.refresh_token ?? tokens.refresh_token,
     expires_at: Date.now() + data.expires_in * 1000,
-  }
+  };
 }
 
 // Returns a valid access token, refreshing if needed.
 // Returns refreshed tokens when a refresh occurred so the caller can persist them.
 export async function getValidToken(tokens: SpotifyTokens): Promise<{
-  token: string
-  refreshed: SpotifyTokens | null
+  token: string;
+  refreshed: SpotifyTokens | null;
 }> {
-  if (!isExpired(tokens)) return { token: tokens.access_token, refreshed: null }
-  const refreshed = await refreshAccessToken(tokens)
-  return { token: refreshed.access_token, refreshed }
+  if (!isExpired(tokens))
+    return { token: tokens.access_token, refreshed: null };
+  const refreshed = await refreshAccessToken(tokens);
+  return { token: refreshed.access_token, refreshed };
 }
 ```
 
@@ -744,47 +770,62 @@ Expected: All 3 token tests pass.
 - [ ] **Step 5: Create `src/lib/spotify/client.ts`**
 
 ```ts
-import type { SpotifyTrack } from '@/types/database'
+import type { SpotifyTrack } from "@/types/database";
 
-const API = 'https://api.spotify.com/v1'
+const API = "https://api.spotify.com/v1";
 
-async function spotifyFetch(path: string, token: string, options: RequestInit = {}) {
+async function spotifyFetch(
+  path: string,
+  token: string,
+  options: RequestInit = {},
+) {
   const res = await fetch(`${API}${path}`, {
     ...options,
     headers: { Authorization: `Bearer ${token}`, ...options.headers },
-  })
+  });
   if (!res.ok && res.status !== 204) {
-    throw new Error(`Spotify API error ${res.status} on ${path}`)
+    throw new Error(`Spotify API error ${res.status} on ${path}`);
   }
-  return res
+  return res;
 }
 
-export async function searchTracks(query: string, token: string): Promise<SpotifyTrack[]> {
-  const params = new URLSearchParams({ q: query, type: 'track', limit: '10' })
-  const res = await spotifyFetch(`/search?${params}`, token)
-  const data = await res.json()
-  return data.tracks.items as SpotifyTrack[]
+export async function searchTracks(
+  query: string,
+  token: string,
+): Promise<SpotifyTrack[]> {
+  const params = new URLSearchParams({ q: query, type: "track", limit: "10" });
+  const res = await spotifyFetch(`/search?${params}`, token);
+  const data = await res.json();
+  return data.tracks.items as SpotifyTrack[];
 }
 
-export async function addToQueue(spotifyTrackId: string, token: string): Promise<void> {
-  const params = new URLSearchParams({ uri: `spotify:track:${spotifyTrackId}` })
-  await spotifyFetch(`/me/player/queue?${params}`, token, { method: 'POST' })
+export async function addToQueue(
+  spotifyTrackId: string,
+  token: string,
+): Promise<void> {
+  const params = new URLSearchParams({
+    uri: `spotify:track:${spotifyTrackId}`,
+  });
+  await spotifyFetch(`/me/player/queue?${params}`, token, { method: "POST" });
 }
 
 export async function getCurrentlyPlaying(
-  token: string
+  token: string,
 ): Promise<{ trackId: string; isPlaying: boolean } | null> {
   const res = await fetch(`${API}/me/player/currently-playing`, {
     headers: { Authorization: `Bearer ${token}` },
-  })
-  if (res.status === 204 || !res.ok) return null
-  const data = await res.json()
-  if (!data.item) return null
-  return { trackId: data.item.id as string, isPlaying: data.is_playing as boolean }
+  });
+  if (res.status === 204 || !res.ok) return null;
+  const data = await res.json();
+  if (!data.item) return null;
+  return {
+    trackId: data.item.id as string,
+    isPlaying: data.is_playing as boolean,
+  };
 }
 
 export async function skipToNext(token: string): Promise<void> {
-  await spotifyFetch('/me/player/next', token, { method: 'POST' })
+  await spotifyFetch("/me/player/next", token, { method: "POST" });
 }
 ```
 
@@ -800,6 +841,7 @@ git commit -m "feat: add Spotify API client and token management"
 ## Task 7: Admin Auth (Supabase Auth + proxy.ts)
 
 **Files:**
+
 - Create: `src/app/admin/login/page.tsx`
 - Create: `src/proxy.ts`
 
@@ -808,84 +850,96 @@ git commit -m "feat: add Spotify API client and token management"
 - [ ] **Step 1: Create `src/proxy.ts`**
 
 ```ts
-import { NextRequest, NextResponse } from 'next/server'
-import { createServerClient } from '@supabase/ssr'
+import { NextRequest, NextResponse } from "next/server";
+import { createServerClient } from "@supabase/ssr";
 
 export async function proxy(request: NextRequest) {
-  const path = request.nextUrl.pathname
+  const path = request.nextUrl.pathname;
 
-  if (!path.startsWith('/admin') || path === '/admin/login') {
-    return NextResponse.next()
+  if (!path.startsWith("/admin") || path === "/admin/login") {
+    return NextResponse.next();
   }
 
-  const response = NextResponse.next()
+  const response = NextResponse.next();
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
-        getAll() { return request.cookies.getAll() },
+        getAll() {
+          return request.cookies.getAll();
+        },
         setAll(cookiesToSet) {
           cookiesToSet.forEach(({ name, value, options }) => {
-            request.cookies.set(name, value)
-            response.cookies.set(name, value, options)
-          })
+            request.cookies.set(name, value);
+            response.cookies.set(name, value, options);
+          });
         },
       },
-    }
-  )
+    },
+  );
 
-  const { data: { user } } = await supabase.auth.getUser()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
   if (!user) {
-    return NextResponse.redirect(new URL('/admin/login', request.url))
+    return NextResponse.redirect(new URL("/admin/login", request.url));
   }
 
-  return response
+  return response;
 }
 
 export const config = {
-  matcher: ['/admin/:path*'],
-}
+  matcher: ["/admin/:path*"],
+};
 ```
 
 - [ ] **Step 2: Create `src/app/admin/login/page.tsx`**
 
 ```tsx
-'use client'
+"use client";
 
-import { useState, useTransition } from 'react'
-import { createClient } from '@/lib/supabase/client'
-import { useRouter } from 'next/navigation'
+import { useState, useTransition } from "react";
+import { createClient } from "@/lib/supabase/client";
+import { useRouter } from "next/navigation";
 
 export default function AdminLoginPage() {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [error, setError] = useState<string | null>(null)
-  const [isPending, startTransition] = useTransition()
-  const router = useRouter()
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [isPending, startTransition] = useTransition();
+  const router = useRouter();
 
   function handleSubmit(e: React.FormEvent) {
-    e.preventDefault()
+    e.preventDefault();
     startTransition(async () => {
-      const supabase = createClient()
-      const { error } = await supabase.auth.signInWithPassword({ email, password })
+      const supabase = createClient();
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
       if (error) {
-        setError('Email atau password salah')
+        setError("Email atau password salah");
       } else {
-        router.push('/admin/queue')
-        router.refresh()
+        router.push("/admin/queue");
+        router.refresh();
       }
-    })
+    });
   }
 
   return (
     <main className="min-h-screen flex items-center justify-center px-4">
-      <form onSubmit={handleSubmit} className="w-full max-w-sm flex flex-col gap-4">
+      <form
+        onSubmit={handleSubmit}
+        className="w-full max-w-sm flex flex-col gap-4"
+      >
         <h1 className="text-2xl font-bold">Admin Login</h1>
         <div>
-          <label htmlFor="email" className="block text-sm font-medium mb-1">Email</label>
+          <label htmlFor="email" className="block text-sm font-medium mb-1">
+            Email
+          </label>
           <input
             id="email"
             type="email"
@@ -896,7 +950,9 @@ export default function AdminLoginPage() {
           />
         </div>
         <div>
-          <label htmlFor="password" className="block text-sm font-medium mb-1">Password</label>
+          <label htmlFor="password" className="block text-sm font-medium mb-1">
+            Password
+          </label>
           <input
             id="password"
             type="password"
@@ -912,11 +968,11 @@ export default function AdminLoginPage() {
           disabled={isPending}
           className="bg-zinc-900 text-white rounded-lg py-3 font-medium disabled:opacity-50"
         >
-          {isPending ? 'Logging in...' : 'Login'}
+          {isPending ? "Logging in..." : "Login"}
         </button>
       </form>
     </main>
-  )
+  );
 }
 ```
 
@@ -944,6 +1000,7 @@ git commit -m "feat: add admin auth with Supabase Auth and proxy.ts route protec
 ## Task 8: Spotify OAuth + Event Creation
 
 **Files:**
+
 - Create: `src/app/admin/setup/page.tsx`
 - Create: `src/app/api/auth/spotify/callback/route.ts`
 - Create: `src/lib/actions/event.ts`
@@ -951,145 +1008,145 @@ git commit -m "feat: add admin auth with Supabase Auth and proxy.ts route protec
 - [ ] **Step 1: Create `src/lib/actions/event.ts`**
 
 ```ts
-'use server'
+"use server";
 
-import { cookies } from 'next/headers'
-import { redirect } from 'next/navigation'
-import { createServiceClient } from '@/lib/supabase/server'
-import { generatePin, generateSessionToken } from '@/lib/validation'
-import { z } from 'zod'
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
+import { createServiceClient } from "@/lib/supabase/server";
+import { generatePin, generateSessionToken } from "@/lib/validation";
+import { z } from "zod";
 
 const createEventSchema = z.object({
   name: z.string().min(1).max(100).trim(),
-})
+});
 
 export async function createEventAndConnectSpotify(formData: FormData) {
-  const parsed = createEventSchema.safeParse({ name: formData.get('name') })
-  if (!parsed.success) return // validation handled client-side
+  const parsed = createEventSchema.safeParse({ name: formData.get("name") });
+  if (!parsed.success) return; // validation handled client-side
 
-  const supabase = await createServiceClient()
-  const pin = generatePin()
+  const supabase = await createServiceClient();
+  const pin = generatePin();
 
   const { data: event, error } = await supabase
-    .from('events')
-    .insert({ name: parsed.data.name, pin, status: 'paused' })
-    .select('id')
-    .single()
+    .from("events")
+    .insert({ name: parsed.data.name, pin, status: "paused" })
+    .select("id")
+    .single();
 
-  if (error || !event) return
+  if (error || !event) return;
 
   // Store event ID in cookie so OAuth callback can link tokens
-  const cookieStore = await cookies()
-  cookieStore.set('pending_event_id', event.id, {
+  const cookieStore = await cookies();
+  cookieStore.set("pending_event_id", event.id, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
     maxAge: 600, // 10 min to complete OAuth
-    path: '/',
-  })
+    path: "/",
+  });
 
   // Generate OAuth state for CSRF protection
-  const state = generateSessionToken()
-  cookieStore.set('spotify_oauth_state', state, {
+  const state = generateSessionToken();
+  cookieStore.set("spotify_oauth_state", state, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
     maxAge: 600,
-    path: '/',
-  })
+    path: "/",
+  });
 
   const params = new URLSearchParams({
-    response_type: 'code',
+    response_type: "code",
     client_id: process.env.SPOTIFY_CLIENT_ID!,
-    scope: 'user-modify-playback-state user-read-playback-state',
+    scope: "user-modify-playback-state user-read-playback-state",
     redirect_uri: process.env.SPOTIFY_REDIRECT_URI!,
     state,
-  })
+  });
 
-  redirect(`https://accounts.spotify.com/authorize?${params}`)
+  redirect(`https://accounts.spotify.com/authorize?${params}`);
 }
 ```
 
 - [ ] **Step 2: Create `src/app/api/auth/spotify/callback/route.ts`**
 
 ```ts
-import { NextRequest, NextResponse } from 'next/server'
-import { createServiceClient } from '@/lib/supabase/server'
+import { NextRequest, NextResponse } from "next/server";
+import { createServiceClient } from "@/lib/supabase/server";
 
 export async function GET(request: NextRequest) {
-  const { searchParams } = request.nextUrl
-  const code = searchParams.get('code')
-  const state = searchParams.get('state')
-  const oauthError = searchParams.get('error')
+  const { searchParams } = request.nextUrl;
+  const code = searchParams.get("code");
+  const state = searchParams.get("state");
+  const oauthError = searchParams.get("error");
 
-  const storedState = request.cookies.get('spotify_oauth_state')?.value
-  const eventId = request.cookies.get('pending_event_id')?.value
+  const storedState = request.cookies.get("spotify_oauth_state")?.value;
+  const eventId = request.cookies.get("pending_event_id")?.value;
 
   if (oauthError || !code || !state || state !== storedState || !eventId) {
     return NextResponse.redirect(
-      new URL('/admin/setup?error=oauth_failed', request.url)
-    )
+      new URL("/admin/setup?error=oauth_failed", request.url),
+    );
   }
 
-  const tokenRes = await fetch('https://accounts.spotify.com/api/token', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+  const tokenRes = await fetch("https://accounts.spotify.com/api/token", {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
     body: new URLSearchParams({
-      grant_type: 'authorization_code',
+      grant_type: "authorization_code",
       code,
       redirect_uri: process.env.SPOTIFY_REDIRECT_URI!,
       client_id: process.env.SPOTIFY_CLIENT_ID!,
       client_secret: process.env.SPOTIFY_CLIENT_SECRET!,
     }),
-  })
+  });
 
   if (!tokenRes.ok) {
     return NextResponse.redirect(
-      new URL('/admin/setup?error=token_failed', request.url)
-    )
+      new URL("/admin/setup?error=token_failed", request.url),
+    );
   }
 
-  const tokenData = await tokenRes.json()
+  const tokenData = await tokenRes.json();
   const tokens = {
     access_token: tokenData.access_token,
     refresh_token: tokenData.refresh_token,
     expires_at: Date.now() + tokenData.expires_in * 1000,
-  }
+  };
 
-  const supabase = await createServiceClient()
+  const supabase = await createServiceClient();
   await supabase
-    .from('events')
-    .update({ spotify_token: tokens, status: 'open' })
-    .eq('id', eventId)
+    .from("events")
+    .update({ spotify_token: tokens, status: "open" })
+    .eq("id", eventId);
 
-  const response = NextResponse.redirect(new URL('/admin/queue', request.url))
-  response.cookies.delete('spotify_oauth_state')
-  response.cookies.delete('pending_event_id')
-  return response
+  const response = NextResponse.redirect(new URL("/admin/queue", request.url));
+  response.cookies.delete("spotify_oauth_state");
+  response.cookies.delete("pending_event_id");
+  return response;
 }
 ```
 
 - [ ] **Step 3: Create `src/app/admin/setup/page.tsx`**
 
 ```tsx
-import { createServiceClient } from '@/lib/supabase/server'
-import { createEventAndConnectSpotify } from '@/lib/actions/event'
+import { createServiceClient } from "@/lib/supabase/server";
+import { createEventAndConnectSpotify } from "@/lib/actions/event";
 
 export default async function AdminSetupPage({
   searchParams,
 }: {
-  searchParams: Promise<{ error?: string }>
+  searchParams: Promise<{ error?: string }>;
 }) {
-  const { error } = await searchParams
+  const { error } = await searchParams;
 
   // Check if event already exists for this admin session
-  const supabase = await createServiceClient()
+  const supabase = await createServiceClient();
   const { data: existingEvent } = await supabase
-    .from('events')
-    .select('id, name, pin, status')
-    .order('created_at', { ascending: false })
+    .from("events")
+    .select("id, name, pin, status")
+    .order("created_at", { ascending: false })
     .limit(1)
-    .single()
+    .single();
 
   return (
     <main className="min-h-screen flex items-center justify-center px-4">
@@ -1112,11 +1169,16 @@ export default async function AdminSetupPage({
 
         {error && (
           <p className="mb-4 text-red-500 text-sm">
-            {error === 'oauth_failed' ? 'Spotify authorization failed. Try again.' : 'Something went wrong.'}
+            {error === "oauth_failed"
+              ? "Spotify authorization failed. Try again."
+              : "Something went wrong."}
           </p>
         )}
 
-        <form action={createEventAndConnectSpotify} className="flex flex-col gap-4">
+        <form
+          action={createEventAndConnectSpotify}
+          className="flex flex-col gap-4"
+        >
           <div>
             <label htmlFor="name" className="block text-sm font-medium mb-1">
               Nama Event
@@ -1140,7 +1202,7 @@ export default async function AdminSetupPage({
         </form>
       </div>
     </main>
-  )
+  );
 }
 ```
 
@@ -1171,6 +1233,7 @@ git commit -m "feat: Spotify OAuth flow and event creation"
 ## Task 9: Participant Join Flow
 
 **Files:**
+
 - Create: `src/lib/actions/participant.ts`
 - Create: `src/components/JoinForm.tsx`
 - Create: `src/app/page.tsx` (replace existing)
@@ -1178,108 +1241,119 @@ git commit -m "feat: Spotify OAuth flow and event creation"
 - [ ] **Step 1: Create `src/lib/actions/participant.ts`**
 
 ```ts
-'use server'
+"use server";
 
-import { cookies, headers } from 'next/headers'
-import { createServiceClient } from '@/lib/supabase/server'
-import { generateSessionToken } from '@/lib/validation'
-import { z } from 'zod'
+import { cookies, headers } from "next/headers";
+import { createServiceClient } from "@/lib/supabase/server";
+import { generateSessionToken } from "@/lib/validation";
+import { z } from "zod";
 
 const joinSchema = z.object({
-  pin: z.string().length(6).regex(/^\d{6}$/),
+  pin: z
+    .string()
+    .length(6)
+    .regex(/^\d{6}$/),
   nickname: z.string().min(1).max(30).trim(),
-})
+});
 
 export type JoinResult =
   | { success: true; pin: string }
-  | { success: false; error: string }
+  | { success: false; error: string };
 
 export async function joinEvent(formData: FormData): Promise<JoinResult> {
   const parsed = joinSchema.safeParse({
-    pin: formData.get('pin'),
-    nickname: formData.get('nickname'),
-  })
-  if (!parsed.success) return { success: false, error: 'PIN harus 6 digit angka' }
+    pin: formData.get("pin"),
+    nickname: formData.get("nickname"),
+  });
+  if (!parsed.success)
+    return { success: false, error: "PIN harus 6 digit angka" };
 
-  const { pin, nickname } = parsed.data
-  const supabase = await createServiceClient()
+  const { pin, nickname } = parsed.data;
+  const supabase = await createServiceClient();
 
   const { data: event } = await supabase
-    .from('events')
-    .select('id, status')
-    .eq('pin', pin)
-    .single()
+    .from("events")
+    .select("id, status")
+    .eq("pin", pin)
+    .single();
 
-  if (!event) return { success: false, error: 'PIN tidak valid' }
-  if (event.status === 'closed') return { success: false, error: 'Portal ini sudah ditutup' }
+  if (!event) return { success: false, error: "PIN tidak valid" };
+  if (event.status === "closed")
+    return { success: false, error: "Portal ini sudah ditutup" };
 
   // Check for duplicate nickname in this event
   const { data: existingParticipant } = await supabase
-    .from('event_participants')
-    .select('id')
-    .eq('event_id', event.id)
-    .eq('nickname', nickname)
-    .single()
+    .from("event_participants")
+    .select("id")
+    .eq("event_id", event.id)
+    .eq("nickname", nickname)
+    .single();
 
   if (existingParticipant) {
-    return { success: false, error: 'Nickname sudah dipakai, pilih yang lain' }
+    return { success: false, error: "Nickname sudah dipakai, pilih yang lain" };
   }
 
-  const sessionToken = generateSessionToken()
-  const { error: insertError } = await supabase.from('event_participants').insert({
-    event_id: event.id,
-    nickname,
-    session_token: sessionToken,
-  })
+  const sessionToken = generateSessionToken();
+  const { error: insertError } = await supabase
+    .from("event_participants")
+    .insert({
+      event_id: event.id,
+      nickname,
+      session_token: sessionToken,
+    });
 
-  if (insertError) return { success: false, error: 'Gagal bergabung, coba lagi' }
+  if (insertError)
+    return { success: false, error: "Gagal bergabung, coba lagi" };
 
-  const cookieStore = await cookies()
-  cookieStore.set('session_token', sessionToken, {
+  const cookieStore = await cookies();
+  cookieStore.set("session_token", sessionToken, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
     maxAge: 24 * 60 * 60,
-    path: '/',
-  })
+    path: "/",
+  });
 
-  return { success: true, pin }
+  return { success: true, pin };
 }
 ```
 
 - [ ] **Step 2: Create `src/components/JoinForm.tsx`**
 
 ```tsx
-'use client'
+"use client";
 
-import { useState, useTransition } from 'react'
-import { useRouter } from 'next/navigation'
-import { joinEvent } from '@/lib/actions/participant'
+import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
+import { joinEvent } from "@/lib/actions/participant";
 
 interface Props {
-  defaultPin?: string
+  defaultPin?: string;
 }
 
 export function JoinForm({ defaultPin }: Props) {
-  const [error, setError] = useState<string | null>(null)
-  const [isPending, startTransition] = useTransition()
-  const router = useRouter()
+  const [error, setError] = useState<string | null>(null);
+  const [isPending, startTransition] = useTransition();
+  const router = useRouter();
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault()
-    const formData = new FormData(e.currentTarget)
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
     startTransition(async () => {
-      const result = await joinEvent(formData)
+      const result = await joinEvent(formData);
       if (result.success) {
-        router.push(`/event/${result.pin}`)
+        router.push(`/event/${result.pin}`);
       } else {
-        setError(result.error)
+        setError(result.error);
       }
-    })
+    });
   }
 
   return (
-    <form onSubmit={handleSubmit} className="w-full max-w-sm flex flex-col gap-4">
+    <form
+      onSubmit={handleSubmit}
+      className="w-full max-w-sm flex flex-col gap-4"
+    >
       <div>
         <label htmlFor="pin" className="block text-sm font-medium mb-1">
           Kode Event
@@ -1317,37 +1391,41 @@ export function JoinForm({ defaultPin }: Props) {
         disabled={isPending}
         className="bg-zinc-900 text-white rounded-lg py-3 font-semibold disabled:opacity-50"
       >
-        {isPending ? 'Memuat...' : 'Masuk ke Event'}
+        {isPending ? "Memuat..." : "Masuk ke Event"}
       </button>
     </form>
-  )
+  );
 }
 ```
 
 - [ ] **Step 3: Replace `src/app/page.tsx`**
 
 ```tsx
-import { JoinForm } from '@/components/JoinForm'
+import { JoinForm } from "@/components/JoinForm";
 
 export default async function LandingPage({
   searchParams,
 }: {
-  searchParams: Promise<{ pin?: string; error?: string }>
+  searchParams: Promise<{ pin?: string; error?: string }>;
 }) {
-  const { pin, error } = await searchParams
+  const { pin, error } = await searchParams;
 
   return (
     <main className="min-h-screen flex flex-col items-center justify-center px-4 bg-zinc-50">
       <div className="text-center mb-8">
         <h1 className="text-4xl font-bold text-zinc-900">Song Request</h1>
-        <p className="text-zinc-500 mt-2">Masukkan kode event untuk request lagu</p>
+        <p className="text-zinc-500 mt-2">
+          Masukkan kode event untuk request lagu
+        </p>
       </div>
-      {error === 'invalid_session' && (
-        <p className="mb-4 text-red-500 text-sm">Sesi kamu expired, silakan masuk lagi.</p>
+      {error === "invalid_session" && (
+        <p className="mb-4 text-red-500 text-sm">
+          Sesi kamu expired, silakan masuk lagi.
+        </p>
       )}
       <JoinForm defaultPin={pin} />
     </main>
-  )
+  );
 }
 ```
 
@@ -1377,46 +1455,56 @@ git commit -m "feat: participant join flow with session cookie"
 ## Task 10: Song Search Server Action
 
 **Files:**
+
 - Modify: `src/lib/actions/requests.ts` (create new)
 - Create: `src/components/SearchResults.tsx`
 
 - [ ] **Step 1: Create `src/lib/actions/requests.ts`** (search only for now)
 
 ```ts
-'use server'
+"use server";
 
-import { cookies } from 'next/headers'
-import { createServiceClient } from '@/lib/supabase/server'
-import { getValidToken } from '@/lib/spotify/tokens'
-import { searchTracks, addToQueue } from '@/lib/spotify/client'
-import { checkRateLimit, checkCooldown, checkDuration } from '@/lib/validation'
-import type { SpotifyTokens, EventSettings, SpotifyTrack } from '@/types/database'
-import { z } from 'zod'
+import { cookies } from "next/headers";
+import { createServiceClient } from "@/lib/supabase/server";
+import { getValidToken } from "@/lib/spotify/tokens";
+import { searchTracks, addToQueue } from "@/lib/spotify/client";
+import { checkRateLimit, checkCooldown, checkDuration } from "@/lib/validation";
+import type {
+  SpotifyTokens,
+  EventSettings,
+  SpotifyTrack,
+} from "@/types/database";
+import { z } from "zod";
 
 export async function searchSongs(
   query: string,
-  eventId: string
+  eventId: string,
 ): Promise<{ tracks: SpotifyTrack[] } | { error: string }> {
-  if (!query.trim()) return { tracks: [] }
+  if (!query.trim()) return { tracks: [] };
 
-  const supabase = await createServiceClient()
+  const supabase = await createServiceClient();
   const { data: event } = await supabase
-    .from('events')
-    .select('spotify_token')
-    .eq('id', eventId)
-    .single()
+    .from("events")
+    .select("spotify_token")
+    .eq("id", eventId)
+    .single();
 
-  if (!event?.spotify_token) return { error: 'Spotify belum terhubung' }
+  if (!event?.spotify_token) return { error: "Spotify belum terhubung" };
 
   try {
-    const { token, refreshed } = await getValidToken(event.spotify_token as SpotifyTokens)
+    const { token, refreshed } = await getValidToken(
+      event.spotify_token as SpotifyTokens,
+    );
     if (refreshed) {
-      await supabase.from('events').update({ spotify_token: refreshed }).eq('id', eventId)
+      await supabase
+        .from("events")
+        .update({ spotify_token: refreshed })
+        .eq("id", eventId);
     }
-    const tracks = await searchTracks(query, token)
-    return { tracks }
+    const tracks = await searchTracks(query, token);
+    return { tracks };
   } catch {
-    return { error: 'Pencarian gagal, coba lagi' }
+    return { error: "Pencarian gagal, coba lagi" };
   }
 }
 
@@ -1427,83 +1515,109 @@ const addRequestSchema = z.object({
   artistName: z.string().min(1),
   albumArtUrl: z.string(),
   durationMs: z.number().positive(),
-})
+});
 
-export type AddRequestResult = { success: true } | { success: false; error: string }
+export type AddRequestResult =
+  | { success: true }
+  | { success: false; error: string };
 
 export async function addRequest(
-  input: z.infer<typeof addRequestSchema>
+  input: z.infer<typeof addRequestSchema>,
 ): Promise<AddRequestResult> {
-  const parsed = addRequestSchema.safeParse(input)
-  if (!parsed.success) return { success: false, error: 'Data tidak valid' }
+  const parsed = addRequestSchema.safeParse(input);
+  if (!parsed.success) return { success: false, error: "Data tidak valid" };
 
-  const { eventId, spotifyTrackId, trackName, artistName, albumArtUrl, durationMs } = parsed.data
-  const cookieStore = await cookies()
-  const sessionToken = cookieStore.get('session_token')?.value
-  if (!sessionToken) return { success: false, error: 'Sesi tidak valid, silakan masuk lagi' }
+  const {
+    eventId,
+    spotifyTrackId,
+    trackName,
+    artistName,
+    albumArtUrl,
+    durationMs,
+  } = parsed.data;
+  const cookieStore = await cookies();
+  const sessionToken = cookieStore.get("session_token")?.value;
+  if (!sessionToken)
+    return { success: false, error: "Sesi tidak valid, silakan masuk lagi" };
 
-  const supabase = await createServiceClient()
+  const supabase = await createServiceClient();
 
   const [{ data: event }, { data: participant }] = await Promise.all([
     supabase
-      .from('events')
-      .select('status, settings, spotify_token')
-      .eq('id', eventId)
+      .from("events")
+      .select("status, settings, spotify_token")
+      .eq("id", eventId)
       .single(),
     supabase
-      .from('event_participants')
-      .select('id, nickname, request_count, last_played_at')
-      .eq('session_token', sessionToken)
-      .eq('event_id', eventId)
+      .from("event_participants")
+      .select("id, nickname, request_count, last_played_at")
+      .eq("session_token", sessionToken)
+      .eq("event_id", eventId)
       .single(),
-  ])
+  ]);
 
-  if (!event) return { success: false, error: 'Event tidak ditemukan' }
-  if (event.status !== 'open') return { success: false, error: 'Portal sedang tutup' }
-  if (!participant) return { success: false, error: 'Sesi tidak valid, silakan masuk lagi' }
+  if (!event) return { success: false, error: "Event tidak ditemukan" };
+  if (event.status !== "open")
+    return { success: false, error: "Portal sedang tutup" };
+  if (!participant)
+    return { success: false, error: "Sesi tidak valid, silakan masuk lagi" };
 
-  const settings = event.settings as EventSettings
+  const settings = event.settings as EventSettings;
 
   const { data: blacklisted } = await supabase
-    .from('blacklisted_tracks')
-    .select('id')
-    .eq('event_id', eventId)
-    .eq('spotify_track_id', spotifyTrackId)
-    .maybeSingle()
-  if (blacklisted) return { success: false, error: 'Lagu ini tidak bisa di-request' }
+    .from("blacklisted_tracks")
+    .select("id")
+    .eq("event_id", eventId)
+    .eq("spotify_track_id", spotifyTrackId)
+    .maybeSingle();
+  if (blacklisted)
+    return { success: false, error: "Lagu ini tidak bisa di-request" };
 
   if (!checkDuration(durationMs, settings.max_duration_ms)) {
-    const maxMins = Math.floor(settings.max_duration_ms / 60_000)
-    return { success: false, error: `Lagu terlalu panjang (max ${maxMins} menit)` }
+    const maxMins = Math.floor(settings.max_duration_ms / 60_000);
+    return {
+      success: false,
+      error: `Lagu terlalu panjang (max ${maxMins} menit)`,
+    };
   }
 
   if (!checkRateLimit(participant.request_count, settings.max_requests)) {
-    return { success: false, error: 'Limit reached, tunggu lagu kamu dimainkan' }
+    return {
+      success: false,
+      error: "Limit reached, tunggu lagu kamu dimainkan",
+    };
   }
 
-  const cooldown = checkCooldown(participant.last_played_at, settings.cooldown_minutes)
+  const cooldown = checkCooldown(
+    participant.last_played_at,
+    settings.cooldown_minutes,
+  );
   if (!cooldown.ok) {
-    return { success: false, error: `Tunggu ${cooldown.minutesLeft} menit lagi` }
+    return {
+      success: false,
+      error: `Tunggu ${cooldown.minutesLeft} menit lagi`,
+    };
   }
 
   const { data: duplicate } = await supabase
-    .from('song_requests')
-    .select('id')
-    .eq('event_id', eventId)
-    .eq('spotify_track_id', spotifyTrackId)
-    .in('status', ['pending', 'playing'])
-    .maybeSingle()
-  if (duplicate) return { success: false, error: 'Lagu ini sudah ada di queue' }
+    .from("song_requests")
+    .select("id")
+    .eq("event_id", eventId)
+    .eq("spotify_track_id", spotifyTrackId)
+    .in("status", ["pending", "playing"])
+    .maybeSingle();
+  if (duplicate)
+    return { success: false, error: "Lagu ini sudah ada di queue" };
 
   // Get next position
   const { count } = await supabase
-    .from('song_requests')
-    .select('*', { count: 'exact', head: true })
-    .eq('event_id', eventId)
-    .in('status', ['pending', 'playing'])
-  const position = (count ?? 0) + 1
+    .from("song_requests")
+    .select("*", { count: "exact", head: true })
+    .eq("event_id", eventId)
+    .in("status", ["pending", "playing"]);
+  const position = (count ?? 0) + 1;
 
-  const { error: insertError } = await supabase.from('song_requests').insert({
+  const { error: insertError } = await supabase.from("song_requests").insert({
     event_id: eventId,
     participant_id: participant.id,
     spotify_track_id: spotifyTrackId,
@@ -1512,46 +1626,51 @@ export async function addRequest(
     album_art_url: albumArtUrl,
     duration_ms: durationMs,
     requested_by: participant.nickname,
-    status: 'pending',
+    status: "pending",
     position,
-  })
+  });
 
-  if (insertError) return { success: false, error: 'Gagal menambahkan lagu' }
+  if (insertError) return { success: false, error: "Gagal menambahkan lagu" };
 
   await supabase
-    .from('event_participants')
+    .from("event_participants")
     .update({ request_count: participant.request_count + 1 })
-    .eq('id', participant.id)
+    .eq("id", participant.id);
 
   // Add to Spotify queue (non-fatal if it fails)
   if (event.spotify_token) {
     try {
-      const { token, refreshed } = await getValidToken(event.spotify_token as SpotifyTokens)
+      const { token, refreshed } = await getValidToken(
+        event.spotify_token as SpotifyTokens,
+      );
       if (refreshed) {
-        await supabase.from('events').update({ spotify_token: refreshed }).eq('id', eventId)
+        await supabase
+          .from("events")
+          .update({ spotify_token: refreshed })
+          .eq("id", eventId);
       }
-      await addToQueue(spotifyTrackId, token)
+      await addToQueue(spotifyTrackId, token);
     } catch (err) {
-      console.error('Spotify add to queue failed (non-fatal):', err)
+      console.error("Spotify add to queue failed (non-fatal):", err);
     }
   }
 
-  return { success: true }
+  return { success: true };
 }
 ```
 
 - [ ] **Step 2: Create `src/components/SearchResults.tsx`**
 
 ```tsx
-import type { SpotifyTrack } from '@/types/database'
+import type { SpotifyTrack } from "@/types/database";
 
 interface Props {
-  tracks: SpotifyTrack[]
-  onSelect: (track: SpotifyTrack) => void
+  tracks: SpotifyTrack[];
+  onSelect: (track: SpotifyTrack) => void;
 }
 
 export function SearchResults({ tracks, onSelect }: Props) {
-  if (tracks.length === 0) return null
+  if (tracks.length === 0) return null;
 
   return (
     <ul className="border rounded-lg overflow-hidden mt-2 divide-y divide-zinc-100">
@@ -1572,7 +1691,7 @@ export function SearchResults({ tracks, onSelect }: Props) {
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium truncate">{track.name}</p>
               <p className="text-xs text-zinc-500 truncate">
-                {track.artists.map((a) => a.name).join(', ')}
+                {track.artists.map((a) => a.name).join(", ")}
               </p>
             </div>
             {track.explicit && (
@@ -1584,7 +1703,7 @@ export function SearchResults({ tracks, onSelect }: Props) {
         </li>
       ))}
     </ul>
-  )
+  );
 }
 ```
 
@@ -1600,59 +1719,64 @@ git commit -m "feat: song search and add request Server Actions"
 ## Task 11: SearchBar Component
 
 **Files:**
+
 - Create: `src/components/SearchBar.tsx`
 
 - [ ] **Step 1: Create `src/components/SearchBar.tsx`**
 
 ```tsx
-'use client'
+"use client";
 
-import { useState, useTransition } from 'react'
-import { searchSongs, addRequest } from '@/lib/actions/requests'
-import { SearchResults } from './SearchResults'
-import type { SpotifyTrack } from '@/types/database'
+import { useState, useTransition } from "react";
+import { searchSongs, addRequest } from "@/lib/actions/requests";
+import { SearchResults } from "./SearchResults";
+import type { SpotifyTrack } from "@/types/database";
 
 interface Props {
-  eventId: string
+  eventId: string;
 }
 
 export function SearchBar({ eventId }: Props) {
-  const [query, setQuery] = useState('')
-  const [tracks, setTracks] = useState<SpotifyTrack[]>([])
-  const [message, setMessage] = useState<{ text: string; ok: boolean } | null>(null)
-  const [isPending, startTransition] = useTransition()
+  const [query, setQuery] = useState("");
+  const [tracks, setTracks] = useState<SpotifyTrack[]>([]);
+  const [message, setMessage] = useState<{ text: string; ok: boolean } | null>(
+    null,
+  );
+  const [isPending, startTransition] = useTransition();
 
   function handleSearch(e: React.FormEvent) {
-    e.preventDefault()
-    if (!query.trim()) return
+    e.preventDefault();
+    if (!query.trim()) return;
     startTransition(async () => {
-      const result = await searchSongs(query, eventId)
-      if ('tracks' in result) {
-        setTracks(result.tracks)
+      const result = await searchSongs(query, eventId);
+      if ("tracks" in result) {
+        setTracks(result.tracks);
       } else {
-        setMessage({ text: result.error, ok: false })
+        setMessage({ text: result.error, ok: false });
       }
-    })
+    });
   }
 
   function handleSelect(track: SpotifyTrack) {
-    setTracks([])
-    setQuery('')
+    setTracks([]);
+    setQuery("");
     startTransition(async () => {
       const result = await addRequest({
         eventId,
         spotifyTrackId: track.id,
         trackName: track.name,
-        artistName: track.artists.map((a) => a.name).join(', '),
-        albumArtUrl: track.album.images[0]?.url ?? '',
+        artistName: track.artists.map((a) => a.name).join(", "),
+        albumArtUrl: track.album.images[0]?.url ?? "",
         durationMs: track.duration_ms,
-      })
+      });
       setMessage({
-        text: result.success ? '🎵 Lagu berhasil ditambahkan ke queue!' : result.error,
+        text: result.success
+          ? "🎵 Lagu berhasil ditambahkan ke queue!"
+          : result.error,
         ok: result.success,
-      })
-      setTimeout(() => setMessage(null), 4000)
-    })
+      });
+      setTimeout(() => setMessage(null), 4000);
+    });
   }
 
   return (
@@ -1670,17 +1794,19 @@ export function SearchBar({ eventId }: Props) {
           disabled={isPending || !query.trim()}
           className="bg-zinc-900 text-white rounded-lg px-4 py-2 text-sm font-medium disabled:opacity-40"
         >
-          {isPending ? '...' : 'Cari'}
+          {isPending ? "..." : "Cari"}
         </button>
       </form>
       <SearchResults tracks={tracks} onSelect={handleSelect} />
       {message && (
-        <p className={`mt-2 text-sm ${message.ok ? 'text-green-600' : 'text-red-500'}`}>
+        <p
+          className={`mt-2 text-sm ${message.ok ? "text-green-600" : "text-red-500"}`}
+        >
           {message.text}
         </p>
       )}
     </div>
-  )
+  );
 }
 ```
 
@@ -1696,91 +1822,104 @@ git commit -m "feat: SearchBar component with search and request submission"
 ## Task 12: Queue Display with Supabase Realtime
 
 **Files:**
+
 - Create: `src/components/QueueList.tsx`
 
 - [ ] **Step 1: Create `src/components/QueueList.tsx`**
 
 ```tsx
-'use client'
+"use client";
 
-import { useEffect, useState } from 'react'
-import { createClient } from '@/lib/supabase/client'
-import type { SongRequest } from '@/types/database'
+import { useEffect, useState } from "react";
+import { createClient } from "@/lib/supabase/client";
+import type { SongRequest } from "@/types/database";
 
 interface Props {
-  eventId: string
-  initialRequests: SongRequest[]
+  eventId: string;
+  initialRequests: SongRequest[];
 }
 
 export function QueueList({ eventId, initialRequests }: Props) {
-  const [requests, setRequests] = useState<SongRequest[]>(initialRequests)
-  const [isConnected, setIsConnected] = useState(true)
+  const [requests, setRequests] = useState<SongRequest[]>(initialRequests);
+  const [isConnected, setIsConnected] = useState(true);
 
   useEffect(() => {
-    const supabase = createClient()
+    const supabase = createClient();
 
     async function fetchQueue() {
       const { data } = await supabase
-        .from('song_requests')
-        .select('*')
-        .eq('event_id', eventId)
-        .in('status', ['pending', 'playing'])
-        .order('position')
-      if (data) setRequests(data)
+        .from("song_requests")
+        .select("*")
+        .eq("event_id", eventId)
+        .in("status", ["pending", "playing"])
+        .order("position");
+      if (data) setRequests(data);
     }
 
     const channel = supabase
       .channel(`queue:${eventId}`)
       .on(
-        'postgres_changes',
+        "postgres_changes",
         {
-          event: '*',
-          schema: 'public',
-          table: 'song_requests',
+          event: "*",
+          schema: "public",
+          table: "song_requests",
           filter: `event_id=eq.${eventId}`,
         },
-        () => fetchQueue()
+        () => fetchQueue(),
       )
       .subscribe((status) => {
-        setIsConnected(status === 'SUBSCRIBED')
-        if (status === 'SUBSCRIBED') fetchQueue()
-      })
+        setIsConnected(status === "SUBSCRIBED");
+        if (status === "SUBSCRIBED") fetchQueue();
+      });
 
-    return () => { supabase.removeChannel(channel) }
-  }, [eventId])
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [eventId]);
 
   if (requests.length === 0) {
     return (
       <p className="text-zinc-500 text-center py-8 text-sm">
         Queue kosong. Jadi yang pertama request!
       </p>
-    )
+    );
   }
 
   return (
     <>
       {!isConnected && (
-        <p className="text-xs text-yellow-600 mb-2">Reconnecting to live queue...</p>
+        <p className="text-xs text-yellow-600 mb-2">
+          Reconnecting to live queue...
+        </p>
       )}
       <ul className="divide-y divide-zinc-100">
         {requests.map((req, i) => (
           <li key={req.id} className="flex items-center gap-3 py-3">
             <span className="text-zinc-400 text-sm w-6 text-right flex-shrink-0">
-              {req.status === 'playing' ? '▶' : i + 1}
+              {req.status === "playing" ? "▶" : i + 1}
             </span>
             {req.album_art_url && (
-              <img src={req.album_art_url} alt="" className="w-10 h-10 rounded flex-shrink-0" />
+              <img
+                src={req.album_art_url}
+                alt=""
+                className="w-10 h-10 rounded flex-shrink-0"
+              />
             )}
             <div className="flex-1 min-w-0">
               <p className="font-medium text-sm truncate">{req.track_name}</p>
-              <p className="text-zinc-500 text-xs truncate">{req.artist_name}</p>
+              <p className="text-zinc-500 text-xs truncate">
+                {req.artist_name}
+              </p>
             </div>
-            <span className="text-zinc-400 text-xs flex-shrink-0">{req.requested_by}</span>
+            <span className="text-zinc-400 text-xs flex-shrink-0">
+              {req.requested_by}
+            </span>
           </li>
         ))}
       </ul>
     </>
-  )
+  );
 }
 ```
 
@@ -1796,55 +1935,56 @@ git commit -m "feat: QueueList with Supabase Realtime live updates"
 ## Task 13: Audience Event Page
 
 **Files:**
+
 - Create: `src/app/event/[pin]/page.tsx`
 
 - [ ] **Step 1: Create `src/app/event/[pin]/page.tsx`**
 
 ```tsx
-import { redirect } from 'next/navigation'
-import { cookies } from 'next/headers'
-import { createServiceClient } from '@/lib/supabase/server'
-import { SearchBar } from '@/components/SearchBar'
-import { QueueList } from '@/components/QueueList'
+import { redirect } from "next/navigation";
+import { cookies } from "next/headers";
+import { createServiceClient } from "@/lib/supabase/server";
+import { SearchBar } from "@/components/SearchBar";
+import { QueueList } from "@/components/QueueList";
 
 export default async function EventPage({
   params,
 }: {
-  params: Promise<{ pin: string }>
+  params: Promise<{ pin: string }>;
 }) {
-  const { pin } = await params
-  const cookieStore = await cookies()
-  const sessionToken = cookieStore.get('session_token')?.value
+  const { pin } = await params;
+  const cookieStore = await cookies();
+  const sessionToken = cookieStore.get("session_token")?.value;
 
   if (!sessionToken) {
-    redirect(`/?pin=${pin}`)
+    redirect(`/?pin=${pin}`);
   }
 
-  const supabase = await createServiceClient()
+  const supabase = await createServiceClient();
 
   const { data: event } = await supabase
-    .from('events')
-    .select('id, name, status')
-    .eq('pin', pin)
-    .single()
+    .from("events")
+    .select("id, name, status")
+    .eq("pin", pin)
+    .single();
 
-  if (!event) redirect('/?error=invalid_pin')
+  if (!event) redirect("/?error=invalid_pin");
 
   const { data: participant } = await supabase
-    .from('event_participants')
-    .select('id, nickname')
-    .eq('session_token', sessionToken)
-    .eq('event_id', event.id)
-    .single()
+    .from("event_participants")
+    .select("id, nickname")
+    .eq("session_token", sessionToken)
+    .eq("event_id", event.id)
+    .single();
 
-  if (!participant) redirect('/?error=invalid_session')
+  if (!participant) redirect("/?error=invalid_session");
 
   const { data: requests } = await supabase
-    .from('song_requests')
-    .select('*')
-    .eq('event_id', event.id)
-    .in('status', ['pending', 'playing'])
-    .order('position')
+    .from("song_requests")
+    .select("*")
+    .eq("event_id", event.id)
+    .in("status", ["pending", "playing"])
+    .order("position");
 
   return (
     <main className="max-w-lg mx-auto px-4 py-8 min-h-screen">
@@ -1853,23 +1993,23 @@ export default async function EventPage({
           <h1 className="text-2xl font-bold">{event.name}</h1>
           <p className="text-sm text-zinc-500">Hi, {participant.nickname}!</p>
         </div>
-        {event.status !== 'open' && (
+        {event.status !== "open" && (
           <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full">
-            {event.status === 'paused' ? 'Paused' : 'Closed'}
+            {event.status === "paused" ? "Paused" : "Closed"}
           </span>
         )}
       </div>
 
-      {event.status === 'open' ? (
+      {event.status === "open" ? (
         <div className="mb-8">
           <h2 className="font-semibold mb-3">Request Lagu</h2>
           <SearchBar eventId={event.id} />
         </div>
       ) : (
         <div className="mb-8 p-4 bg-yellow-50 border border-yellow-200 rounded-lg text-sm text-yellow-800">
-          {event.status === 'paused'
-            ? 'Request lagu sedang ditunda sementara oleh host.'
-            : 'Portal request sudah ditutup.'}
+          {event.status === "paused"
+            ? "Request lagu sedang ditunda sementara oleh host."
+            : "Portal request sudah ditutup."}
         </div>
       )}
 
@@ -1878,7 +2018,7 @@ export default async function EventPage({
         <QueueList eventId={event.id} initialRequests={requests ?? []} />
       </div>
     </main>
-  )
+  );
 }
 ```
 
@@ -1910,6 +2050,7 @@ git commit -m "feat: audience event page with search and live queue"
 ## Task 14: Admin Queue Management
 
 **Files:**
+
 - Create: `src/lib/actions/queue.ts`
 - Create: `src/components/admin/QueueManager.tsx`
 - Create: `src/app/admin/queue/page.tsx`
@@ -1917,194 +2058,210 @@ git commit -m "feat: audience event page with search and live queue"
 - [ ] **Step 1: Create `src/lib/actions/queue.ts`**
 
 ```ts
-'use server'
+"use server";
 
-import { createServiceClient } from '@/lib/supabase/server'
-import { getValidToken } from '@/lib/spotify/tokens'
-import { skipToNext } from '@/lib/spotify/client'
-import type { SpotifyTokens } from '@/types/database'
+import { createServiceClient } from "@/lib/supabase/server";
+import { getValidToken } from "@/lib/spotify/tokens";
+import { skipToNext } from "@/lib/spotify/client";
+import type { SpotifyTokens } from "@/types/database";
 
 export async function skipRequest(
   requestId: string,
-  eventId: string
+  eventId: string,
 ): Promise<{ success: boolean; error?: string }> {
-  const supabase = await createServiceClient()
+  const supabase = await createServiceClient();
 
   const { data: request } = await supabase
-    .from('song_requests')
-    .select('participant_id')
-    .eq('id', requestId)
-    .single()
+    .from("song_requests")
+    .select("participant_id")
+    .eq("id", requestId)
+    .single();
 
-  if (!request) return { success: false, error: 'Request not found' }
+  if (!request) return { success: false, error: "Request not found" };
 
-  await supabase.from('song_requests').update({ status: 'skipped' }).eq('id', requestId)
+  await supabase
+    .from("song_requests")
+    .update({ status: "skipped" })
+    .eq("id", requestId);
 
   // Free participant slot
   const { data: participant } = await supabase
-    .from('event_participants')
-    .select('id, request_count')
-    .eq('id', request.participant_id)
-    .single()
+    .from("event_participants")
+    .select("id, request_count")
+    .eq("id", request.participant_id)
+    .single();
 
   if (participant && participant.request_count > 0) {
     await supabase
-      .from('event_participants')
+      .from("event_participants")
       .update({ request_count: participant.request_count - 1 })
-      .eq('id', participant.id)
+      .eq("id", participant.id);
   }
 
   // Skip on Spotify (non-fatal)
   const { data: event } = await supabase
-    .from('events')
-    .select('spotify_token')
-    .eq('id', eventId)
-    .single()
+    .from("events")
+    .select("spotify_token")
+    .eq("id", eventId)
+    .single();
 
   if (event?.spotify_token) {
     try {
-      const { token, refreshed } = await getValidToken(event.spotify_token as SpotifyTokens)
+      const { token, refreshed } = await getValidToken(
+        event.spotify_token as SpotifyTokens,
+      );
       if (refreshed) {
-        await supabase.from('events').update({ spotify_token: refreshed }).eq('id', eventId)
+        await supabase
+          .from("events")
+          .update({ spotify_token: refreshed })
+          .eq("id", eventId);
       }
-      await skipToNext(token)
+      await skipToNext(token);
     } catch (err) {
-      console.error('Spotify skip failed (non-fatal):', err)
+      console.error("Spotify skip failed (non-fatal):", err);
     }
   }
 
-  return { success: true }
+  return { success: true };
 }
 
 export async function removeRequest(
-  requestId: string
+  requestId: string,
 ): Promise<{ success: boolean }> {
-  const supabase = await createServiceClient()
+  const supabase = await createServiceClient();
 
   const { data: request } = await supabase
-    .from('song_requests')
-    .select('participant_id')
-    .eq('id', requestId)
-    .single()
+    .from("song_requests")
+    .select("participant_id")
+    .eq("id", requestId)
+    .single();
 
-  if (!request) return { success: false }
+  if (!request) return { success: false };
 
-  await supabase.from('song_requests').delete().eq('id', requestId)
+  await supabase.from("song_requests").delete().eq("id", requestId);
 
   // Free participant slot
   const { data: participant } = await supabase
-    .from('event_participants')
-    .select('id, request_count')
-    .eq('id', request.participant_id)
-    .single()
+    .from("event_participants")
+    .select("id, request_count")
+    .eq("id", request.participant_id)
+    .single();
 
   if (participant && participant.request_count > 0) {
     await supabase
-      .from('event_participants')
+      .from("event_participants")
       .update({ request_count: participant.request_count - 1 })
-      .eq('id', participant.id)
+      .eq("id", participant.id);
   }
 
-  return { success: true }
+  return { success: true };
 }
 
 export async function reorderQueue(
   eventId: string,
   requestId: string,
-  direction: 'up' | 'down'
+  direction: "up" | "down",
 ): Promise<{ success: boolean }> {
-  const supabase = await createServiceClient()
+  const supabase = await createServiceClient();
 
   const { data: requests } = await supabase
-    .from('song_requests')
-    .select('id, position')
-    .eq('event_id', eventId)
-    .eq('status', 'pending')
-    .order('position')
+    .from("song_requests")
+    .select("id, position")
+    .eq("event_id", eventId)
+    .eq("status", "pending")
+    .order("position");
 
-  if (!requests || requests.length < 2) return { success: false }
+  if (!requests || requests.length < 2) return { success: false };
 
-  const index = requests.findIndex((r) => r.id === requestId)
-  const swapIndex = direction === 'up' ? index - 1 : index + 1
-  if (index < 0 || swapIndex < 0 || swapIndex >= requests.length) return { success: false }
+  const index = requests.findIndex((r) => r.id === requestId);
+  const swapIndex = direction === "up" ? index - 1 : index + 1;
+  if (index < 0 || swapIndex < 0 || swapIndex >= requests.length)
+    return { success: false };
 
   await supabase
-    .from('song_requests')
+    .from("song_requests")
     .update({ position: requests[swapIndex].position })
-    .eq('id', requests[index].id)
+    .eq("id", requests[index].id);
   await supabase
-    .from('song_requests')
+    .from("song_requests")
     .update({ position: requests[index].position })
-    .eq('id', requests[swapIndex].id)
+    .eq("id", requests[swapIndex].id);
 
-  return { success: true }
+  return { success: true };
 }
 ```
 
 - [ ] **Step 2: Create `src/components/admin/QueueManager.tsx`**
 
 ```tsx
-'use client'
+"use client";
 
-import { useEffect, useState, useTransition } from 'react'
-import { createClient } from '@/lib/supabase/client'
-import { skipRequest, removeRequest, reorderQueue } from '@/lib/actions/queue'
-import type { SongRequest } from '@/types/database'
+import { useEffect, useState, useTransition } from "react";
+import { createClient } from "@/lib/supabase/client";
+import { skipRequest, removeRequest, reorderQueue } from "@/lib/actions/queue";
+import type { SongRequest } from "@/types/database";
 
 interface Props {
-  eventId: string
-  initialRequests: SongRequest[]
+  eventId: string;
+  initialRequests: SongRequest[];
 }
 
 export function QueueManager({ eventId, initialRequests }: Props) {
-  const [requests, setRequests] = useState<SongRequest[]>(initialRequests)
-  const [isPending, startTransition] = useTransition()
+  const [requests, setRequests] = useState<SongRequest[]>(initialRequests);
+  const [isPending, startTransition] = useTransition();
 
   useEffect(() => {
-    const supabase = createClient()
+    const supabase = createClient();
 
     async function fetchQueue() {
       const { data } = await supabase
-        .from('song_requests')
-        .select('*')
-        .eq('event_id', eventId)
-        .in('status', ['pending', 'playing'])
-        .order('position')
-      if (data) setRequests(data)
+        .from("song_requests")
+        .select("*")
+        .eq("event_id", eventId)
+        .in("status", ["pending", "playing"])
+        .order("position");
+      if (data) setRequests(data);
     }
 
     const channel = supabase
       .channel(`admin-queue:${eventId}`)
       .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'song_requests', filter: `event_id=eq.${eventId}` },
-        () => fetchQueue()
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "song_requests",
+          filter: `event_id=eq.${eventId}`,
+        },
+        () => fetchQueue(),
       )
-      .subscribe(() => fetchQueue())
+      .subscribe(() => fetchQueue());
 
-    return () => { supabase.removeChannel(channel) }
-  }, [eventId])
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [eventId]);
 
   function handleSkip(requestId: string) {
     startTransition(async () => {
-      await skipRequest(requestId, eventId)
-    })
+      await skipRequest(requestId, eventId);
+    });
   }
 
   function handleRemove(requestId: string) {
     startTransition(async () => {
-      await removeRequest(requestId)
-    })
+      await removeRequest(requestId);
+    });
   }
 
-  function handleReorder(requestId: string, direction: 'up' | 'down') {
+  function handleReorder(requestId: string, direction: "up" | "down") {
     startTransition(async () => {
-      await reorderQueue(eventId, requestId, direction)
-    })
+      await reorderQueue(eventId, requestId, direction);
+    });
   }
 
   if (requests.length === 0) {
-    return <p className="text-zinc-500 text-center py-8">Queue kosong</p>
+    return <p className="text-zinc-500 text-center py-8">Queue kosong</p>;
   }
 
   return (
@@ -2112,10 +2269,14 @@ export function QueueManager({ eventId, initialRequests }: Props) {
       {requests.map((req, i) => (
         <li key={req.id} className="flex items-center gap-3 py-3">
           <span className="text-zinc-400 text-sm w-6 text-right flex-shrink-0">
-            {req.status === 'playing' ? '▶' : i + 1}
+            {req.status === "playing" ? "▶" : i + 1}
           </span>
           {req.album_art_url && (
-            <img src={req.album_art_url} alt="" className="w-10 h-10 rounded flex-shrink-0" />
+            <img
+              src={req.album_art_url}
+              alt=""
+              className="w-10 h-10 rounded flex-shrink-0"
+            />
           )}
           <div className="flex-1 min-w-0">
             <p className="font-medium text-sm truncate">{req.track_name}</p>
@@ -2125,7 +2286,7 @@ export function QueueManager({ eventId, initialRequests }: Props) {
           </div>
           <div className="flex items-center gap-1 flex-shrink-0">
             <button
-              onClick={() => handleReorder(req.id, 'up')}
+              onClick={() => handleReorder(req.id, "up")}
               disabled={isPending || i === 0}
               className="p-1 text-zinc-400 hover:text-zinc-700 disabled:opacity-30 text-xs"
               title="Move up"
@@ -2133,7 +2294,7 @@ export function QueueManager({ eventId, initialRequests }: Props) {
               ▲
             </button>
             <button
-              onClick={() => handleReorder(req.id, 'down')}
+              onClick={() => handleReorder(req.id, "down")}
               disabled={isPending || i === requests.length - 1}
               className="p-1 text-zinc-400 hover:text-zinc-700 disabled:opacity-30 text-xs"
               title="Move down"
@@ -2158,46 +2319,49 @@ export function QueueManager({ eventId, initialRequests }: Props) {
         </li>
       ))}
     </ul>
-  )
+  );
 }
 ```
 
 - [ ] **Step 3: Create `src/app/admin/queue/page.tsx`**
 
 ```tsx
-import { createServiceClient } from '@/lib/supabase/server'
-import { QueueManager } from '@/components/admin/QueueManager'
-import { redirect } from 'next/navigation'
+import { createServiceClient } from "@/lib/supabase/server";
+import { QueueManager } from "@/components/admin/QueueManager";
+import { redirect } from "next/navigation";
 
 export default async function AdminQueuePage() {
-  const supabase = await createServiceClient()
+  const supabase = await createServiceClient();
 
   const { data: event } = await supabase
-    .from('events')
-    .select('id, name, pin, status')
-    .order('created_at', { ascending: false })
+    .from("events")
+    .select("id, name, pin, status")
+    .order("created_at", { ascending: false })
     .limit(1)
-    .single()
+    .single();
 
-  if (!event) redirect('/admin/setup')
+  if (!event) redirect("/admin/setup");
 
   const { data: requests } = await supabase
-    .from('song_requests')
-    .select('*')
-    .eq('event_id', event.id)
-    .in('status', ['pending', 'playing'])
-    .order('position')
+    .from("song_requests")
+    .select("*")
+    .eq("event_id", event.id)
+    .in("status", ["pending", "playing"])
+    .order("position");
 
   async function toggleStatus() {
-    'use server'
-    const supabase = await createServiceClient()
+    "use server";
+    const supabase = await createServiceClient();
     const { data: current } = await supabase
-      .from('events')
-      .select('status')
-      .eq('id', event.id)
-      .single()
-    const newStatus = current?.status === 'open' ? 'paused' : 'open'
-    await supabase.from('events').update({ status: newStatus }).eq('id', event.id)
+      .from("events")
+      .select("status")
+      .eq("id", event.id)
+      .single();
+    const newStatus = current?.status === "open" ? "paused" : "open";
+    await supabase
+      .from("events")
+      .update({ status: newStatus })
+      .eq("id", event.id);
   }
 
   return (
@@ -2205,14 +2369,19 @@ export default async function AdminQueuePage() {
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold">{event.name}</h1>
-          <p className="text-sm text-zinc-500">PIN: <span className="font-mono font-bold text-zinc-900">{event.pin}</span></p>
+          <p className="text-sm text-zinc-500">
+            PIN:{" "}
+            <span className="font-mono font-bold text-zinc-900">
+              {event.pin}
+            </span>
+          </p>
         </div>
         <div className="flex items-center gap-3">
           <span
             className={`text-xs px-2 py-1 rounded-full ${
-              event.status === 'open'
-                ? 'bg-green-100 text-green-800'
-                : 'bg-yellow-100 text-yellow-800'
+              event.status === "open"
+                ? "bg-green-100 text-green-800"
+                : "bg-yellow-100 text-yellow-800"
             }`}
           >
             {event.status}
@@ -2222,10 +2391,13 @@ export default async function AdminQueuePage() {
               type="submit"
               className="text-sm border rounded-lg px-3 py-1.5 hover:bg-zinc-50"
             >
-              {event.status === 'open' ? 'Pause' : 'Open'}
+              {event.status === "open" ? "Pause" : "Open"}
             </button>
           </form>
-          <a href="/admin/settings" className="text-sm text-zinc-500 hover:text-zinc-900">
+          <a
+            href="/admin/settings"
+            className="text-sm text-zinc-500 hover:text-zinc-900"
+          >
             Settings →
           </a>
         </div>
@@ -2233,7 +2405,7 @@ export default async function AdminQueuePage() {
 
       <QueueManager eventId={event.id} initialRequests={requests ?? []} />
     </main>
-  )
+  );
 }
 ```
 
@@ -2249,6 +2421,7 @@ git commit -m "feat: admin queue management with skip, remove, reorder"
 ## Task 15: Spotify Sync
 
 **Files:**
+
 - Create: `src/app/api/spotify/sync/route.ts`
 - Create: `src/components/admin/SpotifySync.tsx`
 - Modify: `src/app/admin/queue/page.tsx` (add SpotifySync)
@@ -2256,125 +2429,132 @@ git commit -m "feat: admin queue management with skip, remove, reorder"
 - [ ] **Step 1: Create `src/app/api/spotify/sync/route.ts`**
 
 ```ts
-import { NextRequest, NextResponse } from 'next/server'
-import { createServiceClient } from '@/lib/supabase/server'
-import { getCurrentlyPlaying } from '@/lib/spotify/client'
-import { getValidToken } from '@/lib/spotify/tokens'
-import type { SpotifyTokens } from '@/types/database'
+import { NextRequest, NextResponse } from "next/server";
+import { createServiceClient } from "@/lib/supabase/server";
+import { getCurrentlyPlaying } from "@/lib/spotify/client";
+import { getValidToken } from "@/lib/spotify/tokens";
+import type { SpotifyTokens } from "@/types/database";
 
 export async function POST(request: NextRequest) {
-  const eventId = request.nextUrl.searchParams.get('eventId')
-  if (!eventId) return NextResponse.json({ error: 'Missing eventId' }, { status: 400 })
+  const eventId = request.nextUrl.searchParams.get("eventId");
+  if (!eventId)
+    return NextResponse.json({ error: "Missing eventId" }, { status: 400 });
 
-  const supabase = await createServiceClient()
+  const supabase = await createServiceClient();
 
   const { data: event } = await supabase
-    .from('events')
-    .select('spotify_token')
-    .eq('id', eventId)
-    .single()
+    .from("events")
+    .select("spotify_token")
+    .eq("id", eventId)
+    .single();
 
-  if (!event?.spotify_token) return NextResponse.json({ ok: true })
+  if (!event?.spotify_token) return NextResponse.json({ ok: true });
 
   try {
-    const tokens = event.spotify_token as SpotifyTokens
-    const { token, refreshed } = await getValidToken(tokens)
+    const tokens = event.spotify_token as SpotifyTokens;
+    const { token, refreshed } = await getValidToken(tokens);
     if (refreshed) {
-      await supabase.from('events').update({ spotify_token: refreshed }).eq('id', eventId)
+      await supabase
+        .from("events")
+        .update({ spotify_token: refreshed })
+        .eq("id", eventId);
     }
 
-    const playing = await getCurrentlyPlaying(token)
-    if (!playing) return NextResponse.json({ ok: true })
+    const playing = await getCurrentlyPlaying(token);
+    if (!playing) return NextResponse.json({ ok: true });
 
     // Find any currently-marked-playing request
     const { data: currentPlaying } = await supabase
-      .from('song_requests')
-      .select('id, spotify_track_id, participant_id')
-      .eq('event_id', eventId)
-      .eq('status', 'playing')
-      .maybeSingle()
+      .from("song_requests")
+      .select("id, spotify_track_id, participant_id")
+      .eq("event_id", eventId)
+      .eq("status", "playing")
+      .maybeSingle();
 
     // If track changed from what we marked as playing, mark it played
     if (currentPlaying && currentPlaying.spotify_track_id !== playing.trackId) {
       await supabase
-        .from('song_requests')
-        .update({ status: 'played' })
-        .eq('id', currentPlaying.id)
+        .from("song_requests")
+        .update({ status: "played" })
+        .eq("id", currentPlaying.id);
 
       // Free participant slot + record play time for cooldown
       const { data: participant } = await supabase
-        .from('event_participants')
-        .select('id, request_count')
-        .eq('id', currentPlaying.participant_id)
-        .single()
+        .from("event_participants")
+        .select("id, request_count")
+        .eq("id", currentPlaying.participant_id)
+        .single();
 
       if (participant) {
         await supabase
-          .from('event_participants')
+          .from("event_participants")
           .update({
             request_count: Math.max(0, participant.request_count - 1),
             last_played_at: new Date().toISOString(),
           })
-          .eq('id', participant.id)
+          .eq("id", participant.id);
       }
     }
 
     // Mark the currently playing track as 'playing' in our queue (if we have it as pending)
-    if (!currentPlaying || currentPlaying.spotify_track_id !== playing.trackId) {
+    if (
+      !currentPlaying ||
+      currentPlaying.spotify_track_id !== playing.trackId
+    ) {
       const { data: pendingMatch } = await supabase
-        .from('song_requests')
-        .select('id')
-        .eq('event_id', eventId)
-        .eq('spotify_track_id', playing.trackId)
-        .eq('status', 'pending')
-        .maybeSingle()
+        .from("song_requests")
+        .select("id")
+        .eq("event_id", eventId)
+        .eq("spotify_track_id", playing.trackId)
+        .eq("status", "pending")
+        .maybeSingle();
 
       if (pendingMatch) {
         await supabase
-          .from('song_requests')
-          .update({ status: 'playing' })
-          .eq('id', pendingMatch.id)
+          .from("song_requests")
+          .update({ status: "playing" })
+          .eq("id", pendingMatch.id);
       }
     }
   } catch (err) {
-    console.error('Spotify sync error:', err)
+    console.error("Spotify sync error:", err);
   }
 
-  return NextResponse.json({ ok: true })
+  return NextResponse.json({ ok: true });
 }
 ```
 
 - [ ] **Step 2: Create `src/components/admin/SpotifySync.tsx`**
 
 ```tsx
-'use client'
+"use client";
 
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef } from "react";
 
 interface Props {
-  eventId: string
+  eventId: string;
 }
 
 export function SpotifySync({ eventId }: Props) {
-  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
     async function sync() {
       try {
-        await fetch(`/api/spotify/sync?eventId=${eventId}`, { method: 'POST' })
+        await fetch(`/api/spotify/sync?eventId=${eventId}`, { method: "POST" });
       } catch {
         // Network errors are acceptable; sync will retry on next interval
       }
     }
 
-    sync()
-    intervalRef.current = setInterval(sync, 5000)
+    sync();
+    intervalRef.current = setInterval(sync, 5000);
     return () => {
-      if (intervalRef.current) clearInterval(intervalRef.current)
-    }
-  }, [eventId])
+      if (intervalRef.current) clearInterval(intervalRef.current);
+    };
+  }, [eventId]);
 
-  return null
+  return null;
 }
 ```
 
@@ -2383,10 +2563,10 @@ export function SpotifySync({ eventId }: Props) {
 In `src/app/admin/queue/page.tsx`, import and add `SpotifySync` just before the closing `</main>` tag:
 
 ```tsx
-import { SpotifySync } from '@/components/admin/SpotifySync'
+import { SpotifySync } from "@/components/admin/SpotifySync";
 
 // Add inside the JSX, before closing </main>:
-<SpotifySync eventId={event.id} />
+<SpotifySync eventId={event.id} />;
 ```
 
 The full last section of the JSX should look like:
@@ -2409,6 +2589,7 @@ git commit -m "feat: Spotify sync polling via admin dashboard"
 ## Task 16: Admin Settings Page
 
 **Files:**
+
 - Create: `src/lib/actions/settings.ts`
 - Create: `src/components/admin/SettingsForm.tsx`
 - Create: `src/app/admin/settings/page.tsx`
@@ -2416,107 +2597,112 @@ git commit -m "feat: Spotify sync polling via admin dashboard"
 - [ ] **Step 1: Create `src/lib/actions/settings.ts`**
 
 ```ts
-'use server'
+"use server";
 
-import { createServiceClient } from '@/lib/supabase/server'
-import type { EventSettings, EventStatus } from '@/types/database'
-import { z } from 'zod'
+import { createServiceClient } from "@/lib/supabase/server";
+import type { EventSettings, EventStatus } from "@/types/database";
+import { z } from "zod";
 
 const settingsSchema = z.object({
   max_requests: z.coerce.number().int().min(0).max(100),
   cooldown_minutes: z.coerce.number().int().min(0).max(120),
   max_duration_ms: z.coerce.number().int().min(0),
   allow_explicit: z.boolean(),
-})
+});
 
 export async function updateSettings(
   eventId: string,
-  formData: FormData
+  formData: FormData,
 ): Promise<{ success: boolean; error?: string }> {
   const parsed = settingsSchema.safeParse({
-    max_requests: formData.get('max_requests'),
-    cooldown_minutes: formData.get('cooldown_minutes'),
-    max_duration_ms: Number(formData.get('max_duration_minutes') ?? 0) * 60_000,
-    allow_explicit: formData.get('allow_explicit') === 'on',
-  })
-  if (!parsed.success) return { success: false, error: 'Invalid settings values' }
+    max_requests: formData.get("max_requests"),
+    cooldown_minutes: formData.get("cooldown_minutes"),
+    max_duration_ms: Number(formData.get("max_duration_minutes") ?? 0) * 60_000,
+    allow_explicit: formData.get("allow_explicit") === "on",
+  });
+  if (!parsed.success)
+    return { success: false, error: "Invalid settings values" };
 
-  const supabase = await createServiceClient()
+  const supabase = await createServiceClient();
   const { error } = await supabase
-    .from('events')
+    .from("events")
     .update({ settings: parsed.data })
-    .eq('id', eventId)
+    .eq("id", eventId);
 
-  return error ? { success: false, error: 'Failed to save' } : { success: true }
+  return error
+    ? { success: false, error: "Failed to save" }
+    : { success: true };
 }
 
 export async function updatePortalStatus(
   eventId: string,
-  status: EventStatus
+  status: EventStatus,
 ): Promise<void> {
-  const supabase = await createServiceClient()
-  await supabase.from('events').update({ status }).eq('id', eventId)
+  const supabase = await createServiceClient();
+  await supabase.from("events").update({ status }).eq("id", eventId);
 }
 
 export async function addToBlacklist(
   eventId: string,
   spotifyTrackId: string,
-  trackName: string
+  trackName: string,
 ): Promise<void> {
-  const supabase = await createServiceClient()
-  await supabase
-    .from('blacklisted_tracks')
-    .upsert({ event_id: eventId, spotify_track_id: spotifyTrackId, track_name: trackName })
+  const supabase = await createServiceClient();
+  await supabase.from("blacklisted_tracks").upsert({
+    event_id: eventId,
+    spotify_track_id: spotifyTrackId,
+    track_name: trackName,
+  });
 }
 
 export async function removeFromBlacklist(
   eventId: string,
-  spotifyTrackId: string
+  spotifyTrackId: string,
 ): Promise<void> {
-  const supabase = await createServiceClient()
+  const supabase = await createServiceClient();
   await supabase
-    .from('blacklisted_tracks')
+    .from("blacklisted_tracks")
     .delete()
-    .eq('event_id', eventId)
-    .eq('spotify_track_id', spotifyTrackId)
+    .eq("event_id", eventId)
+    .eq("spotify_track_id", spotifyTrackId);
 }
 ```
 
 - [ ] **Step 2: Create `src/components/admin/SettingsForm.tsx`**
 
 ```tsx
-'use client'
+"use client";
 
-import { useState, useTransition } from 'react'
-import { updateSettings, removeFromBlacklist } from '@/lib/actions/settings'
-import type { EventSettings, BlacklistedTrack } from '@/types/database'
+import { useState, useTransition } from "react";
+import { updateSettings, removeFromBlacklist } from "@/lib/actions/settings";
+import type { EventSettings, BlacklistedTrack } from "@/types/database";
 
 interface Props {
-  eventId: string
-  settings: EventSettings
-  blacklist: BlacklistedTrack[]
+  eventId: string;
+  settings: EventSettings;
+  blacklist: BlacklistedTrack[];
 }
 
 export function SettingsForm({ eventId, settings, blacklist }: Props) {
-  const [saved, setSaved] = useState(false)
-  const [isPending, startTransition] = useTransition()
+  const [saved, setSaved] = useState(false);
+  const [isPending, startTransition] = useTransition();
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault()
-    const formData = new FormData(e.currentTarget)
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
     startTransition(async () => {
-      const result = await updateSettings(eventId, formData)
+      const result = await updateSettings(eventId, formData);
       if (result.success) {
-        setSaved(true)
-        setTimeout(() => setSaved(false), 2000)
+        setSaved(true);
+        setTimeout(() => setSaved(false), 2000);
       }
-    })
+    });
   }
 
   function handleRemoveBlacklist(spotifyTrackId: string) {
     startTransition(async () => {
-      await removeFromBlacklist(eventId, spotifyTrackId)
-    })
+      await removeFromBlacklist(eventId, spotifyTrackId);
+    });
   }
 
   return (
@@ -2583,7 +2769,7 @@ export function SettingsForm({ eventId, settings, blacklist }: Props) {
           disabled={isPending}
           className="bg-zinc-900 text-white rounded-lg px-4 py-2 text-sm font-medium disabled:opacity-50"
         >
-          {saved ? 'Saved!' : isPending ? 'Saving...' : 'Save Settings'}
+          {saved ? "Saved!" : isPending ? "Saving..." : "Save Settings"}
         </button>
       </form>
 
@@ -2594,7 +2780,10 @@ export function SettingsForm({ eventId, settings, blacklist }: Props) {
         ) : (
           <ul className="divide-y divide-zinc-100 border rounded-lg overflow-hidden">
             {blacklist.map((track) => (
-              <li key={track.id} className="flex items-center justify-between px-3 py-2">
+              <li
+                key={track.id}
+                className="flex items-center justify-between px-3 py-2"
+              >
                 <span className="text-sm">{track.track_name}</span>
                 <button
                   onClick={() => handleRemoveBlacklist(track.spotify_track_id)}
@@ -2608,44 +2797,48 @@ export function SettingsForm({ eventId, settings, blacklist }: Props) {
           </ul>
         )}
         <p className="text-xs text-zinc-400 mt-2">
-          To blacklist a song, use the queue manager: hover a song and click "Blacklist".
+          To blacklist a song, use the queue manager: hover a song and click
+          "Blacklist".
         </p>
       </div>
     </div>
-  )
+  );
 }
 ```
 
 - [ ] **Step 3: Create `src/app/admin/settings/page.tsx`**
 
 ```tsx
-import { createServiceClient } from '@/lib/supabase/server'
-import { SettingsForm } from '@/components/admin/SettingsForm'
-import { redirect } from 'next/navigation'
+import { createServiceClient } from "@/lib/supabase/server";
+import { SettingsForm } from "@/components/admin/SettingsForm";
+import { redirect } from "next/navigation";
 
 export default async function AdminSettingsPage() {
-  const supabase = await createServiceClient()
+  const supabase = await createServiceClient();
 
   const { data: event } = await supabase
-    .from('events')
-    .select('id, name, settings')
-    .order('created_at', { ascending: false })
+    .from("events")
+    .select("id, name, settings")
+    .order("created_at", { ascending: false })
     .limit(1)
-    .single()
+    .single();
 
-  if (!event) redirect('/admin/setup')
+  if (!event) redirect("/admin/setup");
 
   const { data: blacklist } = await supabase
-    .from('blacklisted_tracks')
-    .select('*')
-    .eq('event_id', event.id)
-    .order('added_at', { ascending: false })
+    .from("blacklisted_tracks")
+    .select("*")
+    .eq("event_id", event.id)
+    .order("added_at", { ascending: false });
 
   return (
     <main className="max-w-2xl mx-auto px-4 py-8">
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold">Settings — {event.name}</h1>
-        <a href="/admin/queue" className="text-sm text-zinc-500 hover:text-zinc-900">
+        <a
+          href="/admin/queue"
+          className="text-sm text-zinc-500 hover:text-zinc-900"
+        >
           ← Queue
         </a>
       </div>
@@ -2655,7 +2848,7 @@ export default async function AdminSettingsPage() {
         blacklist={blacklist ?? []}
       />
     </main>
-  )
+  );
 }
 ```
 
@@ -2665,15 +2858,15 @@ In `src/components/admin/QueueManager.tsx`, import `addToBlacklist` and add a bu
 
 ```tsx
 // Add import
-import { skipRequest, removeRequest, reorderQueue } from '@/lib/actions/queue'
-import { addToBlacklist } from '@/lib/actions/settings'
+import { skipRequest, removeRequest, reorderQueue } from "@/lib/actions/queue";
+import { addToBlacklist } from "@/lib/actions/settings";
 
 // Add handler inside QueueManager:
 function handleBlacklist(req: SongRequest) {
   startTransition(async () => {
-    await addToBlacklist(eventId, req.spotify_track_id, req.track_name)
-    await removeRequest(req.id)
-  })
+    await addToBlacklist(eventId, req.spotify_track_id, req.track_name);
+    await removeRequest(req.id);
+  });
 }
 
 // Add button in the button group (after Remove button):
@@ -2683,7 +2876,7 @@ function handleBlacklist(req: SongRequest) {
   className="px-2 py-1 text-xs bg-zinc-100 text-zinc-700 rounded hover:bg-zinc-200 disabled:opacity-50"
 >
   Ban
-</button>
+</button>;
 ```
 
 - [ ] **Step 5: Commit**
@@ -2698,6 +2891,7 @@ git commit -m "feat: admin settings page with configurable limits and blacklist"
 ## Task 17: Rate Limiting
 
 **Files:**
+
 - Create: `src/lib/rate-limit.ts`
 - Create: `src/lib/rate-limit.test.ts`
 - Modify: `src/lib/actions/participant.ts` (add join rate limit)
@@ -2708,25 +2902,27 @@ git commit -m "feat: admin settings page with configurable limits and blacklist"
 Create `src/lib/rate-limit.test.ts`:
 
 ```ts
-import { describe, it, expect } from 'vitest'
-import { buildRateLimitKey, isWithinWindow } from './rate-limit'
+import { describe, it, expect } from "vitest";
+import { buildRateLimitKey, isWithinWindow } from "./rate-limit";
 
-describe('buildRateLimitKey', () => {
-  it('combines identifier and action', () => {
-    expect(buildRateLimitKey('1.2.3.4', 'join_attempt')).toBe('1.2.3.4:join_attempt')
-  })
-})
+describe("buildRateLimitKey", () => {
+  it("combines identifier and action", () => {
+    expect(buildRateLimitKey("1.2.3.4", "join_attempt")).toBe(
+      "1.2.3.4:join_attempt",
+    );
+  });
+});
 
-describe('isWithinWindow', () => {
-  it('returns true when window_start is within the window', () => {
-    const recent = new Date(Date.now() - 5 * 60 * 1000).toISOString()
-    expect(isWithinWindow(recent, 10)).toBe(true)
-  })
-  it('returns false when window_start is outside the window', () => {
-    const old = new Date(Date.now() - 15 * 60 * 1000).toISOString()
-    expect(isWithinWindow(old, 10)).toBe(false)
-  })
-})
+describe("isWithinWindow", () => {
+  it("returns true when window_start is within the window", () => {
+    const recent = new Date(Date.now() - 5 * 60 * 1000).toISOString();
+    expect(isWithinWindow(recent, 10)).toBe(true);
+  });
+  it("returns false when window_start is outside the window", () => {
+    const old = new Date(Date.now() - 15 * 60 * 1000).toISOString();
+    expect(isWithinWindow(old, 10)).toBe(false);
+  });
+});
 ```
 
 - [ ] **Step 2: Run test — expect FAIL**
@@ -2740,15 +2936,18 @@ Expected: FAIL — `Cannot find module './rate-limit'`
 - [ ] **Step 3: Create `src/lib/rate-limit.ts`**
 
 ```ts
-import type { SupabaseClient } from '@supabase/supabase-js'
+import type { SupabaseClient } from "@supabase/supabase-js";
 
 export function buildRateLimitKey(identifier: string, action: string): string {
-  return `${identifier}:${action}`
+  return `${identifier}:${action}`;
 }
 
-export function isWithinWindow(windowStart: string, windowMinutes: number): boolean {
-  const elapsed = (Date.now() - new Date(windowStart).getTime()) / 60_000
-  return elapsed < windowMinutes
+export function isWithinWindow(
+  windowStart: string,
+  windowMinutes: number,
+): boolean {
+  const elapsed = (Date.now() - new Date(windowStart).getTime()) / 60_000;
+  return elapsed < windowMinutes;
 }
 
 export async function checkRateLimitDb(
@@ -2756,33 +2955,35 @@ export async function checkRateLimitDb(
   identifier: string,
   action: string,
   maxCount: number,
-  windowMinutes: number
+  windowMinutes: number,
 ): Promise<{ allowed: boolean }> {
-  const windowStart = new Date(Date.now() - windowMinutes * 60_000).toISOString()
+  const windowStart = new Date(
+    Date.now() - windowMinutes * 60_000,
+  ).toISOString();
 
   const { data: existing } = await supabase
-    .from('rate_limits')
-    .select('id, count')
-    .eq('identifier', identifier)
-    .eq('action', action)
-    .gte('window_start', windowStart)
-    .order('window_start', { ascending: false })
+    .from("rate_limits")
+    .select("id, count")
+    .eq("identifier", identifier)
+    .eq("action", action)
+    .gte("window_start", windowStart)
+    .order("window_start", { ascending: false })
     .limit(1)
-    .maybeSingle()
+    .maybeSingle();
 
   if (!existing) {
-    await supabase.from('rate_limits').insert({ identifier, action, count: 1 })
-    return { allowed: true }
+    await supabase.from("rate_limits").insert({ identifier, action, count: 1 });
+    return { allowed: true };
   }
 
-  if (existing.count >= maxCount) return { allowed: false }
+  if (existing.count >= maxCount) return { allowed: false };
 
   await supabase
-    .from('rate_limits')
+    .from("rate_limits")
     .update({ count: existing.count + 1 })
-    .eq('id', existing.id)
+    .eq("id", existing.id);
 
-  return { allowed: true }
+  return { allowed: true };
 }
 ```
 
@@ -2799,15 +3000,19 @@ Expected: All tests pass.
 Add after the `joinSchema.safeParse` check, before the Supabase event lookup:
 
 ```ts
-import { headers } from 'next/headers'
-import { checkRateLimitDb } from '@/lib/rate-limit'
+import { headers } from "next/headers";
+import { checkRateLimitDb } from "@/lib/rate-limit";
 
 // Inside joinEvent, after parsed.success check:
-const headersList = await headers()
-const ip = headersList.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unknown'
-const { allowed } = await checkRateLimitDb(supabase, ip, 'join_attempt', 5, 10)
+const headersList = await headers();
+const ip =
+  headersList.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
+const { allowed } = await checkRateLimitDb(supabase, ip, "join_attempt", 5, 10);
 if (!allowed) {
-  return { success: false, error: 'Terlalu banyak percobaan. Coba lagi dalam 10 menit.' }
+  return {
+    success: false,
+    error: "Terlalu banyak percobaan. Coba lagi dalam 10 menit.",
+  };
 }
 ```
 
@@ -2818,14 +3023,20 @@ if (!allowed) {
 Add search rate limiting inside `searchSongs`, after confirming the participant session:
 
 ```ts
-import { checkRateLimitDb } from '@/lib/rate-limit'
+import { checkRateLimitDb } from "@/lib/rate-limit";
 
 // Inside searchSongs, after confirming event.spotify_token exists:
-const cookieStore = await cookies()
-const sessionToken = cookieStore.get('session_token')?.value ?? 'anon'
-const { allowed } = await checkRateLimitDb(supabase, sessionToken, 'search', 20, 1)
+const cookieStore = await cookies();
+const sessionToken = cookieStore.get("session_token")?.value ?? "anon";
+const { allowed } = await checkRateLimitDb(
+  supabase,
+  sessionToken,
+  "search",
+  20,
+  1,
+);
 if (!allowed) {
-  return { error: 'Terlalu banyak pencarian. Tunggu 1 menit.' }
+  return { error: "Terlalu banyak pencarian. Tunggu 1 menit." };
 }
 ```
 

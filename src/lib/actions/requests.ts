@@ -15,7 +15,7 @@ export async function searchSongs(
 ): Promise<{ tracks: SpotifyTrack[] } | { error: string }> {
   if (!query.trim()) return { tracks: [] }
 
-  const supabase = await createServiceClient()
+  const supabase = createServiceClient()
   const { data: event } = await supabase
     .from('events')
     .select('spotify_token')
@@ -69,7 +69,7 @@ export async function addRequest(
   const sessionToken = cookieStore.get('session_token')?.value
   if (!sessionToken) return { success: false, error: 'Sesi tidak valid, silakan masuk lagi' }
 
-  const supabase = await createServiceClient()
+  const supabase = createServiceClient()
 
   const [{ data: event }, { data: participant }] = await Promise.all([
     supabase

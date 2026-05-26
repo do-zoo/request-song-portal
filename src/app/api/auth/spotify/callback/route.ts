@@ -41,7 +41,7 @@ export async function GET(request: NextRequest) {
     expires_at: Date.now() + tokenData.expires_in * 1000,
   }
 
-  const supabase = await createServiceClient()
+  const supabase = createServiceClient()
   await supabase
     .from('events')
     .update({ spotify_token: tokens, status: 'open' })

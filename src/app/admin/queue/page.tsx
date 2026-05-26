@@ -4,7 +4,7 @@ import { SpotifySync } from '@/components/admin/SpotifySync'
 import { redirect } from 'next/navigation'
 
 export default async function AdminQueuePage() {
-  const supabase = await createServiceClient()
+  const supabase = createServiceClient()
 
   const { data: event } = await supabase
     .from('events')
@@ -26,7 +26,7 @@ export default async function AdminQueuePage() {
 
   async function toggleStatus() {
     'use server'
-    const supabase = await createServiceClient()
+    const supabase = createServiceClient()
     const { data: current } = await supabase
       .from('events')
       .select('status')

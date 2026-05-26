@@ -8,7 +8,7 @@ export async function POST(request: NextRequest) {
   const eventId = request.nextUrl.searchParams.get('eventId')
   if (!eventId) return NextResponse.json({ error: 'Missing eventId' }, { status: 400 })
 
-  const supabase = await createServiceClient()
+  const supabase = createServiceClient()
 
   const { data: event } = await supabase
     .from('events')
