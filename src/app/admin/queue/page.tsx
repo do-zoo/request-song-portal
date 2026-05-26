@@ -1,5 +1,6 @@
 import { createServiceClient } from '@/lib/supabase/server'
 import { QueueManager } from '@/components/admin/QueueManager'
+import { SpotifySync } from '@/components/admin/SpotifySync'
 import { redirect } from 'next/navigation'
 
 export default async function AdminQueuePage() {
@@ -67,6 +68,7 @@ export default async function AdminQueuePage() {
       </div>
 
       <QueueManager eventId={eventId} initialRequests={requests ?? []} />
+      <SpotifySync eventId={eventId} />
     </main>
   )
 }
