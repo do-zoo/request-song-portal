@@ -80,7 +80,7 @@ export function QueueManager({ eventId, initialRequests }: Props) {
           <div className="flex items-center gap-1 flex-shrink-0">
             <button
               onClick={() => handleReorder(req.id, 'up')}
-              disabled={isPending || i === 0}
+              disabled={isPending || i === 0 || requests[i - 1]?.status !== 'pending'}
               className="p-1 text-zinc-400 hover:text-zinc-700 disabled:opacity-30 text-xs"
               title="Move up"
             >
@@ -88,7 +88,7 @@ export function QueueManager({ eventId, initialRequests }: Props) {
             </button>
             <button
               onClick={() => handleReorder(req.id, 'down')}
-              disabled={isPending || i === requests.length - 1}
+              disabled={isPending || i === requests.length - 1 || req.status === 'playing'}
               className="p-1 text-zinc-400 hover:text-zinc-700 disabled:opacity-30 text-xs"
               title="Move down"
             >
