@@ -25,7 +25,10 @@ export async function searchSongs(
   if (!event?.spotify_token) return { error: 'Spotify belum terhubung' }
 
   const cookieStore = await cookies()
-  const sessionToken = cookieStore.get('session_token')?.value ?? 'anon'
+  const sessionToken = cookieStore.get('session_token')?.value
+  if (!sessionToken) {
+    return { error: 'Sesi tidak valid, silakan masuk lagi' }
+  }
   const { allowed } = await checkRateLimitDb(supabase, sessionToken, 'search', 20, 1)
   if (!allowed) {
     return { error: 'Terlalu banyak pencarian. Tunggu 1 menit.' }
