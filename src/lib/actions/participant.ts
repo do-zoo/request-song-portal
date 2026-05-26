@@ -1,8 +1,9 @@
 'use server'
 
-import { cookies } from 'next/headers'
+import { cookies, headers } from 'next/headers'
 import { createServiceClient } from '@/lib/supabase/server'
 import { generateSessionToken } from '@/lib/validation'
+import { checkRateLimitDb } from '@/lib/rate-limit'
 import { z } from 'zod'
 
 const joinSchema = z.object({
@@ -23,6 +24,13 @@ export async function joinEvent(formData: FormData): Promise<JoinResult> {
 
   const { pin, nickname } = parsed.data
   const supabase = await createServiceClient()
+
+  const headersList = await headers()
+  const ip = headersList.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unknown'
+  const { allowed } = await checkRateLimitDb(supabase, ip, 'join_attempt', 5, 10)
+  if (!allowed) {
+    return { success: false, error: 'Terlalu banyak percobaan. Coba lagi dalam 10 menit.' }
+  }
 
   const { data: event } = await supabase
     .from('events')

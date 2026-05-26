@@ -5,6 +5,7 @@ import { createServiceClient } from '@/lib/supabase/server'
 import { getValidToken } from '@/lib/spotify/tokens'
 import { searchTracks, addToQueue } from '@/lib/spotify/client'
 import { checkRateLimit, checkCooldown, checkDuration } from '@/lib/validation'
+import { checkRateLimitDb } from '@/lib/rate-limit'
 import type { SpotifyTokens, EventSettings, SpotifyTrack } from '@/types/database'
 import { z } from 'zod'
 
@@ -22,6 +23,13 @@ export async function searchSongs(
     .single()
 
   if (!event?.spotify_token) return { error: 'Spotify belum terhubung' }
+
+  const cookieStore = await cookies()
+  const sessionToken = cookieStore.get('session_token')?.value ?? 'anon'
+  const { allowed } = await checkRateLimitDb(supabase, sessionToken, 'search', 20, 1)
+  if (!allowed) {
+    return { error: 'Terlalu banyak pencarian. Tunggu 1 menit.' }
+  }
 
   try {
     const { token, refreshed } = await getValidToken(event.spotify_token as SpotifyTokens)
