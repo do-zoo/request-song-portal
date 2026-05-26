@@ -3,6 +3,7 @@
 import { useEffect, useState, useTransition } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { skipRequest, removeRequest, reorderQueue } from '@/lib/actions/queue'
+import { addToBlacklist } from '@/lib/actions/settings'
 import type { SongRequest } from '@/types/database'
 
 interface Props {
@@ -57,6 +58,13 @@ export function QueueManager({ eventId, initialRequests }: Props) {
     })
   }
 
+  function handleBlacklist(req: SongRequest) {
+    startTransition(async () => {
+      await addToBlacklist(eventId, req.spotify_track_id, req.track_name)
+      await removeRequest(req.id)
+    })
+  }
+
   if (requests.length === 0) {
     return <p className="text-zinc-500 text-center py-8">Queue kosong</p>
   }
@@ -107,6 +115,13 @@ export function QueueManager({ eventId, initialRequests }: Props) {
               className="px-2 py-1 text-xs bg-red-100 text-red-700 rounded hover:bg-red-200 disabled:opacity-50"
             >
               Remove
+            </button>
+            <button
+              onClick={() => handleBlacklist(req)}
+              disabled={isPending}
+              className="px-2 py-1 text-xs bg-zinc-100 text-zinc-700 rounded hover:bg-zinc-200 disabled:opacity-50"
+            >
+              Ban
             </button>
           </div>
         </li>
