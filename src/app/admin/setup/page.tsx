@@ -1,4 +1,4 @@
-import { createServiceClient } from '@/lib/supabase/server'
+import { createServiceClient } from '@/utils/supabase/server'
 import { CreateEventForm } from './CreateEventForm'
 
 export default async function AdminSetupPage({

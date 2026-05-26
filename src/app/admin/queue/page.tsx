@@ -1,4 +1,4 @@
-import { createServiceClient } from '@/lib/supabase/server'
+import { createServiceClient } from '@/utils/supabase/server'
 import { QueueManager } from '@/components/admin/QueueManager'
 import { SpotifySync } from '@/components/admin/SpotifySync'
 import { redirect } from 'next/navigation'

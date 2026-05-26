@@ -2,7 +2,7 @@
 
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
-import { createServiceClient } from '@/lib/supabase/server'
+import { createServiceClient } from '@/utils/supabase/server'
 import { generatePin, generateSessionToken } from '@/lib/validation'
 import { z } from 'zod'
 

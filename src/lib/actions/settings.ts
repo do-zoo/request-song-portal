@@ -1,6 +1,6 @@
 'use server'
 
-import { createServiceClient } from '@/lib/supabase/server'
+import { createServiceClient } from '@/utils/supabase/server'
 import type { EventStatus } from '@/types/database'
 import { z } from 'zod'
 

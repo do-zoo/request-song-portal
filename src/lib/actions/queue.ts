@@ -1,6 +1,6 @@
 'use server'
 
-import { createServiceClient } from '@/lib/supabase/server'
+import { createServiceClient } from '@/utils/supabase/server'
 import { getValidToken } from '@/lib/spotify/tokens'
 import { skipToNext } from '@/lib/spotify/client'
 import type { SpotifyTokens } from '@/types/database'

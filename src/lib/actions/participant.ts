@@ -1,7 +1,7 @@
 'use server'
 
 import { cookies, headers } from 'next/headers'
-import { createServiceClient } from '@/lib/supabase/server'
+import { createServiceClient } from '@/utils/supabase/server'
 import { generateSessionToken } from '@/lib/validation'
 import { checkRateLimitDb } from '@/lib/rate-limit'
 import { z } from 'zod'

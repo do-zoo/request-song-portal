@@ -1,4 +1,4 @@
-import { createServiceClient } from '@/lib/supabase/server'
+import { createServiceClient } from '@/utils/supabase/server'
 import { SettingsForm } from '@/components/admin/SettingsForm'
 import { redirect } from 'next/navigation'
 import type { EventSettings } from '@/types/database'

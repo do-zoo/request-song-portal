@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState, useTransition } from 'react'
-import { createClient } from '@/lib/supabase/client'
+import { createClient } from '@/utils/supabase/client'
 import { skipRequest, removeRequest, reorderQueue } from '@/lib/actions/queue'
 import { addToBlacklist } from '@/lib/actions/settings'
 import type { SongRequest } from '@/types/database'

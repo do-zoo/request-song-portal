@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createServiceClient } from '@/lib/supabase/server'
+import { createServiceClient } from '@/utils/supabase/server'
 import { getCurrentlyPlaying } from '@/lib/spotify/client'
 import { getValidToken } from '@/lib/spotify/tokens'
 import type { SpotifyTokens } from '@/types/database'
