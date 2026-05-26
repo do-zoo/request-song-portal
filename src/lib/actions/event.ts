@@ -6,13 +6,18 @@ import { createServiceClient } from '@/lib/supabase/server'
 import { generatePin, generateSessionToken } from '@/lib/validation'
 import { z } from 'zod'
 
+export type ActionState = { error?: string }
+
 const createEventSchema = z.object({
   name: z.string().min(1).max(100).trim(),
 })
 
-export async function createEventAndConnectSpotify(formData: FormData) {
+export async function createEventAndConnectSpotify(
+  _prev: ActionState,
+  formData: FormData
+): Promise<ActionState> {
   const parsed = createEventSchema.safeParse({ name: formData.get('name') })
-  if (!parsed.success) return
+  if (!parsed.success) return { error: 'Nama event tidak valid.' }
 
   const supabase = await createServiceClient()
   const pin = generatePin()
@@ -23,7 +28,10 @@ export async function createEventAndConnectSpotify(formData: FormData) {
     .select('id')
     .single()
 
-  if (error || !event) return
+  if (error || !event) {
+    console.error('[createEvent] DB insert failed:', error)
+    return { error: 'Gagal membuat event. Coba lagi.' }
+  }
 
   const cookieStore = await cookies()
   cookieStore.set('pending_event_id', event.id, {
