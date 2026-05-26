@@ -1,5 +1,5 @@
 import { createServiceClient } from '@/lib/supabase/server'
-import { createEventAndConnectSpotify } from '@/lib/actions/event'
+import { CreateEventForm } from './CreateEventForm'
 
 export default async function AdminSetupPage({
   searchParams,
@@ -41,28 +41,7 @@ export default async function AdminSetupPage({
           </p>
         )}
 
-        <form action={createEventAndConnectSpotify} className="flex flex-col gap-4">
-          <div>
-            <label htmlFor="name" className="block text-sm font-medium mb-1">
-              Nama Event
-            </label>
-            <input
-              id="name"
-              name="name"
-              type="text"
-              required
-              maxLength={100}
-              placeholder="Birthday Party 2026"
-              className="w-full border rounded-lg px-3 py-2"
-            />
-          </div>
-          <button
-            type="submit"
-            className="bg-green-600 text-white rounded-lg py-3 font-medium hover:bg-green-700"
-          >
-            Buat Event & Connect Spotify
-          </button>
-        </form>
+        <CreateEventForm />
       </div>
     </main>
   )
