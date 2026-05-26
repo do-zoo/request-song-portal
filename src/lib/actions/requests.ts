@@ -42,6 +42,7 @@ const addRequestSchema = z.object({
   artistName: z.string().min(1),
   albumArtUrl: z.string(),
   durationMs: z.number().positive(),
+  isExplicit: z.boolean(),
 })
 
 export type AddRequestResult = { success: true } | { success: false; error: string }
@@ -52,7 +53,7 @@ export async function addRequest(
   const parsed = addRequestSchema.safeParse(input)
   if (!parsed.success) return { success: false, error: 'Data tidak valid' }
 
-  const { eventId, spotifyTrackId, trackName, artistName, albumArtUrl, durationMs } = parsed.data
+  const { eventId, spotifyTrackId, trackName, artistName, albumArtUrl, durationMs, isExplicit } = parsed.data
   const cookieStore = await cookies()
   const sessionToken = cookieStore.get('session_token')?.value
   if (!sessionToken) return { success: false, error: 'Sesi tidak valid, silakan masuk lagi' }
@@ -86,6 +87,10 @@ export async function addRequest(
     .eq('spotify_track_id', spotifyTrackId)
     .maybeSingle()
   if (blacklisted) return { success: false, error: 'Lagu ini tidak bisa di-request' }
+
+  if (!settings.allow_explicit && isExplicit) {
+    return { success: false, error: 'Konten eksplisit tidak diperbolehkan' }
+  }
 
   if (!checkDuration(durationMs, settings.max_duration_ms)) {
     const maxMins = Math.floor(settings.max_duration_ms / 60_000)
